@@ -6,16 +6,16 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
-public class newForm extends javax.swing.JFrame {
+public class Ticket extends javax.swing.JFrame {
 
     String USERID;
 
-    public newForm() {
+    public Ticket() {
         initComponents();
         setResizable(false);
     }
 
-    public newForm(String name, String contact, String from, String to, String busname, String date, String dtime, String atime, String seat, String total, String userid) {
+    public Ticket(String name, String contact, String from, String to, String busname, String date, String dtime, String atime, String seat, String total, String userid) {
         initComponents();
         setResizable(false);
         name1.setText(name);
@@ -388,20 +388,21 @@ public class newForm extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(newForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Ticket.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(newForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Ticket.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(newForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Ticket.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(newForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Ticket.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new newForm().setVisible(true);
+                new Ticket().setVisible(true);
             }
         });
     }

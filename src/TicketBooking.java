@@ -66,6 +66,8 @@ public final class TicketBooking extends javax.swing.JFrame {
     String username = "root";
     String pass = "123456";
     String USERID, atime;
+    String Price, busname, pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat = "";
+    boolean ok = false;
 
     class bus_info {
 
@@ -141,6 +143,27 @@ public final class TicketBooking extends javax.swing.JFrame {
         jTable1.setFont(new Font("Arial", Font.BOLD, 14));
         jTable1.setRowHeight(30);
     }
+
+    public void paysubmit_buttonActionPerformed_work() {
+        if (!ok) {
+            JOptionPane.showMessageDialog(rootPane, "You should Book first!!!");
+            return;
+        }
+        SelectedDate = ((JTextField) jDateChooser1.getDateEditor().getUiComponent()).getText();
+        pname = name_field.getText();
+        pcontact = contact_field.getText();
+        Price = total_price.getText();
+        busname = (String) bus_name.getSelectedItem();
+
+        int ind = bus_name.getSelectedIndex();
+        selectedTime = ar.get(ind - 1).DEPARTURE_TIME;
+        atime = ar.get(ind - 1).ARRIVAL_TIME;
+        setVisible(false);
+        //new Payment().setVisible(true);
+        //new Payment(pname,pcontact,SelectedFrom,SelectedTo,SelectedDate,selectedTime,selectedSeat,Nseat,price).setVisible(true);
+        Payment p_ob = new Payment(pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat, Nseat, Price, busname, USERID, atime);
+        p_ob.setVisible(true);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -148,9 +171,6 @@ public final class TicketBooking extends javax.swing.JFrame {
      */
     @SuppressWarnings("unchecked")
 
-    String Price, busname, pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat = "";
-
-    boolean ok = false;
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -161,8 +181,8 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         Search = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
-        name = new javax.swing.JTextField();
-        contact = new javax.swing.JTextField();
+        name_field = new javax.swing.JTextField();
+        contact_field = new javax.swing.JTextField();
         A1 = new javax.swing.JButton();
         A2 = new javax.swing.JButton();
         A4 = new javax.swing.JButton();
@@ -217,17 +237,17 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel12 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
-        tprice = new javax.swing.JLabel();
+        total_price = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
-        NSeat = new javax.swing.JTextField();
+        nseat_field = new javax.swing.JTextField();
         dateee = new javax.swing.JTextField();
         Reset = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
-        price = new javax.swing.JLabel();
+        ticket_price = new javax.swing.JLabel();
         Book = new javax.swing.JButton();
-        jButton44 = new javax.swing.JButton();
+        paysubmit_button = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jButton45 = new javax.swing.JButton();
@@ -285,11 +305,11 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel6.setText("NAME :");
         getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 36, 50, 20));
 
-        name.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
-        getContentPane().add(name, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 32, 160, 30));
+        name_field.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        getContentPane().add(name_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 32, 160, 30));
 
-        contact.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
-        getContentPane().add(contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 30, 140, 30));
+        contact_field.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        getContentPane().add(contact_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 30, 140, 30));
 
         A1.setBackground(new java.awt.Color(0, 255, 0));
         A1.setFont(new java.awt.Font("Segoe UI Symbol", 0, 12)); // NOI18N
@@ -718,8 +738,8 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel15.setText("DATE :");
         getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(486, 96, 40, 20));
 
-        tprice.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
-        getContentPane().add(tprice, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 160, 120, 20));
+        total_price.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
+        getContentPane().add(total_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 160, 120, 20));
 
         jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel17.setText("NO OF SEAT :");
@@ -730,12 +750,12 @@ public final class TicketBooking extends javax.swing.JFrame {
         getContentPane().add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(448, 160, 90, 20));
         getContentPane().add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 140, 60, 20));
 
-        NSeat.setEditable(false);
-        NSeat.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
-        getContentPane().add(NSeat, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 130, 70, 30));
+        nseat_field.setEditable(false);
+        nseat_field.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        getContentPane().add(nseat_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 130, 70, 30));
 
         dateee.setEditable(false);
-        dateee.setFont(new java.awt.Font("SansSerif", 1, 16)); // NOI18N
+        dateee.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
         dateee.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dateeeActionPerformed(evt);
@@ -758,8 +778,8 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel9.setText("PRICE :");
         getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 160, 40, 20));
 
-        price.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
-        getContentPane().add(price, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 80, 20));
+        ticket_price.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
+        getContentPane().add(ticket_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 80, 20));
 
         Book.setBackground(new java.awt.Color(0, 0, 0));
         Book.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -772,16 +792,16 @@ public final class TicketBooking extends javax.swing.JFrame {
         });
         getContentPane().add(Book, new org.netbeans.lib.awtextra.AbsoluteConstraints(422, 203, 80, 30));
 
-        jButton44.setBackground(new java.awt.Color(0, 0, 0));
-        jButton44.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
-        jButton44.setForeground(new java.awt.Color(255, 255, 255));
-        jButton44.setText("PAY");
-        jButton44.addActionListener(new java.awt.event.ActionListener() {
+        paysubmit_button.setBackground(new java.awt.Color(0, 0, 0));
+        paysubmit_button.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
+        paysubmit_button.setForeground(new java.awt.Color(255, 255, 255));
+        paysubmit_button.setText("PAY");
+        paysubmit_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton44ActionPerformed(evt);
+                paysubmit_buttonActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton44, new org.netbeans.lib.awtextra.AbsoluteConstraints(542, 203, 80, 30));
+        getContentPane().add(paysubmit_button, new org.netbeans.lib.awtextra.AbsoluteConstraints(542, 203, 80, 30));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -889,9 +909,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (A1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked !!");
@@ -899,7 +919,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             A1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -907,7 +927,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             A1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "A1 ";
         }
     }//GEN-LAST:event_A1ActionPerformed
@@ -930,9 +950,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (A2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -940,7 +960,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             A2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -948,7 +968,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             A2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "A2 ";
         }
     }//GEN-LAST:event_A2ActionPerformed
@@ -959,9 +979,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (A3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -969,7 +989,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             A3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -977,7 +997,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             A3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "A3 ";
         }
     }//GEN-LAST:event_A3ActionPerformed
@@ -988,9 +1008,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (A4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -998,7 +1018,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             A4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1006,7 +1026,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             A4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "A4 ";
         }
     }//GEN-LAST:event_A4ActionPerformed
@@ -1017,9 +1037,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (B1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1027,7 +1047,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             B1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1035,7 +1055,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             B1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "B1 ";
         }
     }//GEN-LAST:event_B1ActionPerformed
@@ -1046,9 +1066,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (B2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1056,7 +1076,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             B2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1064,7 +1084,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             B2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "B2 ";
         }
     }//GEN-LAST:event_B2ActionPerformed
@@ -1075,9 +1095,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (B3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1085,7 +1105,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             B3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1093,7 +1113,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             B3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "B3 ";
         }
     }//GEN-LAST:event_B3ActionPerformed
@@ -1104,9 +1124,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (B4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1114,7 +1134,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             B4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1122,7 +1142,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             B4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "B4 ";
         }
     }//GEN-LAST:event_B4ActionPerformed
@@ -1133,9 +1153,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (C1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1143,7 +1163,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             C1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1151,7 +1171,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             C1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "C1 ";
         }
     }//GEN-LAST:event_C1ActionPerformed
@@ -1161,9 +1181,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (C2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1171,7 +1191,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             C2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1179,7 +1199,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             C2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "C2 ";
         }
     }//GEN-LAST:event_C2ActionPerformed
@@ -1190,9 +1210,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (C3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1200,7 +1220,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             C3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1208,7 +1228,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             C3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "C3 ";
         }
     }//GEN-LAST:event_C3ActionPerformed
@@ -1219,9 +1239,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (C4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1229,7 +1249,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             C4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1237,7 +1257,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             C4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "C4 ";
         }
     }//GEN-LAST:event_C4ActionPerformed
@@ -1254,9 +1274,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (D1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1264,7 +1284,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             D1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1272,7 +1292,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             D1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "D1 ";
         }
     }//GEN-LAST:event_D1ActionPerformed
@@ -1282,9 +1302,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (D2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1292,7 +1312,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             D2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1300,7 +1320,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             D2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "D2 ";
         }
     }//GEN-LAST:event_D2ActionPerformed
@@ -1310,9 +1330,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (D3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1320,7 +1340,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             D3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1328,7 +1348,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             D3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "D3 ";
         }
     }//GEN-LAST:event_D3ActionPerformed
@@ -1338,9 +1358,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (D4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1348,7 +1368,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             D4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1356,7 +1376,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             D4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "D4 ";
         }
     }//GEN-LAST:event_D4ActionPerformed
@@ -1366,9 +1386,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (E1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1376,7 +1396,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             E1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1384,7 +1404,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             E1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "E1 ";
         }
     }//GEN-LAST:event_E1ActionPerformed
@@ -1394,9 +1414,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (E2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1404,7 +1424,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             E2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1412,7 +1432,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             E2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "E2 ";
         }
     }//GEN-LAST:event_E2ActionPerformed
@@ -1423,9 +1443,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (E3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1433,7 +1453,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             E3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1441,7 +1461,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             E3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "E3 ";
         }
     }//GEN-LAST:event_E3ActionPerformed
@@ -1452,9 +1472,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (E4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1462,7 +1482,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             E4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1470,7 +1490,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             E4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "E4 ";
         }
     }//GEN-LAST:event_E4ActionPerformed
@@ -1481,9 +1501,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (F1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1491,7 +1511,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             F1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1499,7 +1519,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             F1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "F1 ";
         }
     }//GEN-LAST:event_F1ActionPerformed
@@ -1510,9 +1530,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (F2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1520,7 +1540,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             F2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1528,7 +1548,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             F2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "F2 ";
         }
     }//GEN-LAST:event_F2ActionPerformed
@@ -1539,9 +1559,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (F3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1549,7 +1569,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             F3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1557,7 +1577,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             F3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "F3 ";
         }
     }//GEN-LAST:event_F3ActionPerformed
@@ -1568,9 +1588,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (F4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1578,7 +1598,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             F4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1586,7 +1606,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             F4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "F4 ";
         }
     }//GEN-LAST:event_F4ActionPerformed
@@ -1597,9 +1617,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (G1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1607,7 +1627,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             G1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1615,7 +1635,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             G1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "G1 ";
         }
     }//GEN-LAST:event_G1ActionPerformed
@@ -1626,9 +1646,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (G2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1636,7 +1656,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             G2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1644,7 +1664,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             G2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "G2 ";
         }
     }//GEN-LAST:event_G2ActionPerformed
@@ -1655,9 +1675,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (G3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1665,7 +1685,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             G3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1673,7 +1693,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             G3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "G3 ";
         }
     }//GEN-LAST:event_G3ActionPerformed
@@ -1684,9 +1704,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (G4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1694,7 +1714,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             G4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1702,7 +1722,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             G4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "G4 ";
         }
     }//GEN-LAST:event_G4ActionPerformed
@@ -1713,9 +1733,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (H1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1723,7 +1743,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             H1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1731,7 +1751,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             H1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "H1 ";
         }
     }//GEN-LAST:event_H1ActionPerformed
@@ -1742,9 +1762,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (H2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1752,7 +1772,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             H2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1760,7 +1780,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             H2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "H2 ";
         }
     }//GEN-LAST:event_H2ActionPerformed
@@ -1771,9 +1791,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (H3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1781,7 +1801,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             H3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1789,7 +1809,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             H3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "H3 ";
         }
     }//GEN-LAST:event_H3ActionPerformed
@@ -1799,9 +1819,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (H4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1809,7 +1829,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             H4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1817,7 +1837,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             H4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "H4 ";
         }
     }//GEN-LAST:event_H4ActionPerformed
@@ -1828,9 +1848,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (I1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1838,7 +1858,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             I1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1846,7 +1866,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             I1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "I1 ";
         }
     }//GEN-LAST:event_I1ActionPerformed
@@ -1856,9 +1876,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (I2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1866,7 +1886,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             I2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1874,7 +1894,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             I2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "I2 ";
         }
     }//GEN-LAST:event_I2ActionPerformed
@@ -1884,9 +1904,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (I3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1894,7 +1914,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             I3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1902,7 +1922,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             I3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "I3 ";
         }
     }//GEN-LAST:event_I3ActionPerformed
@@ -1913,9 +1933,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (I4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1923,7 +1943,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             I4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1931,7 +1951,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             I4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "I4 ";
         }
     }//GEN-LAST:event_I4ActionPerformed
@@ -1942,9 +1962,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (J1.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1952,7 +1972,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             J1.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1960,7 +1980,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             J1.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "J1 ";
         }
     }//GEN-LAST:event_J1ActionPerformed
@@ -1971,9 +1991,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (J2.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -1981,7 +2001,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             J2.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1989,7 +2009,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             J2.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "J2 ";
         }
     }//GEN-LAST:event_J2ActionPerformed
@@ -2000,9 +2020,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (J3.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -2010,7 +2030,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             J3.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -2018,7 +2038,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             J3.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "J3 ";
         }
     }//GEN-LAST:event_J3ActionPerformed
@@ -2029,9 +2049,9 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
         else if (tlevel.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        else if (price.getText().isEmpty())
+        else if (ticket_price.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        else if (name.getText().isEmpty() || contact.getText().isEmpty() || dateee.getText().isEmpty())
+        else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         else if (J4.getBackground() == red)
             JOptionPane.showMessageDialog(rootPane, "Seat Booked");
@@ -2039,7 +2059,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             J4.setBackground(Color.green);
             Nseat--;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat = " ";
         } else if (Nseat == 4)
             JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -2047,19 +2067,19 @@ public final class TicketBooking extends javax.swing.JFrame {
             J4.setBackground(Color.yellow);
             Nseat++;
             String seat = Nseat.toString();
-            NSeat.setText(seat);
+            nseat_field.setText(seat);
             selectedSeat += "J4 ";
         }
     }//GEN-LAST:event_J4ActionPerformed
 
     private void BookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BookActionPerformed
-        if (NSeat.getText().isEmpty())
+        if (nseat_field.getText().isEmpty())
             JOptionPane.showMessageDialog(rootPane, "Select your seat first");
         else {
 //            String selectd = (String) jComboBox2.getSelectedItem();
             int ind = bus_name.getSelectedIndex();
 //            jLabel11.setText(String.valueOf(ar.get(ind-1).FARE));
-            tprice.setText(String.valueOf(Nseat * ar.get(ind - 1).FARE));
+            total_price.setText(String.valueOf(Nseat * ar.get(ind - 1).FARE));
             ok = true;
             if (A1.getBackground() == yellow) {
                 A1.setBackground(Color.red);
@@ -2195,11 +2215,11 @@ public final class TicketBooking extends javax.swing.JFrame {
         flevel.setText("");
         tlevel.setText("");
         dateee.setText("");
-        name.setText("");
-        contact.setText("");
-        NSeat.setText("");
-        price.setText("");
-        tprice.setText("");
+        name_field.setText("");
+        contact_field.setText("");
+        nseat_field.setText("");
+        ticket_price.setText("");
+        total_price.setText("");
         selectedSeat = " ";
         //Clearing Table
         //DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
@@ -2334,26 +2354,10 @@ public final class TicketBooking extends javax.swing.JFrame {
             J4.setBackground(Color.green);
     }//GEN-LAST:event_ResetActionPerformed
 
-    private void jButton44ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton44ActionPerformed
-        if (!ok) {
-            JOptionPane.showMessageDialog(rootPane, "You should Book first!!!");
-            return;
-        }
-        SelectedDate = ((JTextField) jDateChooser1.getDateEditor().getUiComponent()).getText();
-        pname = name.getText();
-        pcontact = contact.getText();
-        Price = tprice.getText();
-        busname = (String) bus_name.getSelectedItem();
+    private void paysubmit_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paysubmit_buttonActionPerformed
+        paysubmit_buttonActionPerformed_work();
 
-        int ind = bus_name.getSelectedIndex();
-        selectedTime = ar.get(ind - 1).DEPARTURE_TIME;
-        atime = ar.get(ind - 1).ARRIVAL_TIME;
-        setVisible(false);
-        //new Payment().setVisible(true);
-        //new Payment(pname,pcontact,SelectedFrom,SelectedTo,SelectedDate,selectedTime,selectedSeat,Nseat,price).setVisible(true);
-        Payment p_ob = new Payment(pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat, Nseat, Price, busname, USERID, atime);
-        p_ob.setVisible(true);
-    }//GEN-LAST:event_jButton44ActionPerformed
+    }//GEN-LAST:event_paysubmit_buttonActionPerformed
 
     private void dateeeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dateeeActionPerformed
         // TODO add your handling code here:
@@ -2407,7 +2411,7 @@ public final class TicketBooking extends javax.swing.JFrame {
         String selectd = (String) bus_name.getSelectedItem();
 
         if (ind > 0) {
-            price.setText(String.valueOf(ar.get(ind - 1).FARE));
+            ticket_price.setText(String.valueOf(ar.get(ind - 1).FARE));
         }
 
     }//GEN-LAST:event_bus_nameActionPerformed
@@ -2502,19 +2506,17 @@ public final class TicketBooking extends javax.swing.JFrame {
     private javax.swing.JButton J2;
     private javax.swing.JButton J3;
     private javax.swing.JButton J4;
-    private javax.swing.JTextField NSeat;
     private javax.swing.JButton Reset;
     private javax.swing.JButton Search;
     private javax.swing.JLabel SeatB;
     private javax.swing.JLabel Steer;
     private javax.swing.JComboBox<String> To;
     private javax.swing.JComboBox<String> bus_name;
-    private javax.swing.JTextField contact;
+    private javax.swing.JTextField contact_field;
     private javax.swing.JTextField dateee;
     private javax.swing.JLabel flevel;
     private javax.swing.JButton jButton41;
     private javax.swing.JButton jButton42;
-    private javax.swing.JButton jButton44;
     private javax.swing.JButton jButton45;
     private javax.swing.JButton jButton46;
     private javax.swing.JButton jButton47;
@@ -2539,9 +2541,11 @@ public final class TicketBooking extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField name;
-    private javax.swing.JLabel price;
+    private javax.swing.JTextField name_field;
+    private javax.swing.JTextField nseat_field;
+    private javax.swing.JButton paysubmit_button;
+    private javax.swing.JLabel ticket_price;
     private javax.swing.JLabel tlevel;
-    private javax.swing.JLabel tprice;
+    private javax.swing.JLabel total_price;
     // End of variables declaration//GEN-END:variables
 }

@@ -55,8 +55,8 @@ public final class User_Login extends javax.swing.JFrame {
     }
 
     public void SigninActionPerformed_Work() {
-        String USERID = UserId.getText();
-        String PASS = PassWord.getText();
+        String USERID = user_id.getText();
+        String PASS = user_pass.getText();
         if (USERID.isEmpty() || PASS.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Username or password cannot be empty!", "Error", 2);
         } else {
@@ -90,7 +90,7 @@ public final class User_Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        UserId = new javax.swing.JTextField();
+        user_id = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         signin_button = new javax.swing.JButton();
         create_account_button = new javax.swing.JButton();
@@ -98,20 +98,20 @@ public final class User_Login extends javax.swing.JFrame {
         label1 = new javax.swing.JLabel();
         label2 = new javax.swing.JLabel();
         Back = new javax.swing.JButton();
-        PassWord = new javax.swing.JPasswordField();
+        user_pass = new javax.swing.JPasswordField();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Login");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        UserId.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        UserId.addActionListener(new java.awt.event.ActionListener() {
+        user_id.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        user_id.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                UserIdActionPerformed(evt);
+                user_idActionPerformed(evt);
             }
         });
-        getContentPane().add(UserId, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 150, 460, 30));
+        getContentPane().add(user_id, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 150, 460, 30));
 
         jButton1.setBackground(new java.awt.Color(0, 0, 0));
         jButton1.setFont(new java.awt.Font("Haettenschweiler", 1, 48)); // NOI18N
@@ -163,21 +163,21 @@ public final class User_Login extends javax.swing.JFrame {
         });
         getContentPane().add(Back, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 410, -1, -1));
 
-        PassWord.addKeyListener(new java.awt.event.KeyAdapter() {
+        user_pass.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                PassWordKeyPressed(evt);
+                user_passKeyPressed(evt);
             }
         });
-        getContentPane().add(PassWord, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 198, 460, 30));
+        getContentPane().add(user_pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 198, 460, 30));
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, -10, 820, 470));
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void UserIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UserIdActionPerformed
+    private void user_idActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_user_idActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_UserIdActionPerformed
+    }//GEN-LAST:event_user_idActionPerformed
 
     private void signin_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signin_buttonActionPerformed
         // TODO add your handling code here:
@@ -206,17 +206,15 @@ public final class User_Login extends javax.swing.JFrame {
         dispose();
     }//GEN-LAST:event_exit_buttonActionPerformed
 
-    private void PassWordKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_PassWordKeyPressed
+    private void user_passKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_user_passKeyPressed
         // TODO add your handling code here:
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             SigninActionPerformed_Work();
         }
 
-    }//GEN-LAST:event_PassWordKeyPressed
+    }//GEN-LAST:event_user_passKeyPressed
 
-    /**
-     * @param args the command line arguments
-     */
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -249,8 +247,6 @@ public final class User_Login extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Back;
-    private javax.swing.JPasswordField PassWord;
-    private javax.swing.JTextField UserId;
     private javax.swing.JButton create_account_button;
     private javax.swing.JButton exit_button;
     private javax.swing.JButton jButton1;
@@ -258,5 +254,7 @@ public final class User_Login extends javax.swing.JFrame {
     private javax.swing.JLabel label1;
     private javax.swing.JLabel label2;
     private javax.swing.JButton signin_button;
+    private javax.swing.JTextField user_id;
+    private javax.swing.JPasswordField user_pass;
     // End of variables declaration//GEN-END:variables
 }

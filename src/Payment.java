@@ -8,50 +8,43 @@ import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
-
-/**
- *
- * @author Faisal
- */
 public final class Payment extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Payment
-     */
     String url = "jdbc:mysql://localhost:3306/busmania";
     String username = "root";
     String pass = "123456";
     int Nseat;
-    String total,name,contact,from,to,date,atime,dtime,seat,busname,USERID;
+    String total, name, contact, from, to, date, atime, dtime, seat, busname, USERID;
+
     public Payment() {
         initComponents();
         ScaleImage1();
         ScaleImage2();
+        setResizable(false);
     }
-    public void ScaleImage1(){
+
+    public void ScaleImage1() {
         ImageIcon ic;
-        ic = new ImageIcon("E:\\JavaProject\\BusMania\\src\\img\\Light.jpg");
+        ic = new ImageIcon("D:\\Netbeans Projects\\BusMania\\src\\img\\Light.jpg");
         Image im = ic.getImage();
-        Image imScale = im.getScaledInstance(Light_Back.getWidth(),Light_Back.getHeight(),Image.SCALE_SMOOTH);
-        ImageIcon scaledicon =new ImageIcon(imScale);
+        Image imScale = im.getScaledInstance(Light_Back.getWidth(), Light_Back.getHeight(), Image.SCALE_SMOOTH);
+        ImageIcon scaledicon = new ImageIcon(imScale);
         Light_Back.setIcon(scaledicon);
     }
-    public void ScaleImage2(){
+
+    public void ScaleImage2() {
         ImageIcon ic;
-        ic = new ImageIcon("E:\\JavaProject\\BusMania\\src\\img\\bkash payment.png");
+        ic = new ImageIcon("D:\\Netbeans Projects\\BusMania\\src\\img\\bkash payment.png");
         Image im = ic.getImage();
-        Image imScale = im.getScaledInstance(Bkash_Back.getWidth(),Bkash_Back.getHeight(),Image.SCALE_SMOOTH);
-        ImageIcon scaledicon =new ImageIcon(imScale);
+        Image imScale = im.getScaledInstance(Bkash_Back.getWidth(), Bkash_Back.getHeight(), Image.SCALE_SMOOTH);
+        ImageIcon scaledicon = new ImageIcon(imScale);
         Bkash_Back.setIcon(scaledicon);
     }
-    public Payment(String pname,String pcontact,String selectedFrom,String selectedTo,String selectedDate,String selectedTime,String selectedSeat,int Ns,String total_price,String bs,String Userid,String Atime) {
+
+    public Payment(String pname, String pcontact, String selectedFrom, String selectedTo, String selectedDate, String selectedTime, String selectedSeat, int Ns, String total_price, String bs, String Userid, String Atime) {
         initComponents();
-        USERID=Userid;
-        Nseat=Ns;
+        USERID = Userid;
+        Nseat = Ns;
         total = total_price;
         name = pname;
         contact = pcontact;
@@ -59,13 +52,14 @@ public final class Payment extends javax.swing.JFrame {
         to = selectedTo;
         date = selectedDate;
         dtime = selectedTime;
-        atime=Atime;
+        atime = Atime;
         seat = selectedSeat;
-        busname=bs;
-        Show.setText("Great,That's "+total+"/- ");
+        busname = bs;
+        Show.setText("Great,That's " + total + "/- ");
         ScaleImage1();
         ScaleImage2();
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -104,7 +98,7 @@ public final class Payment extends javax.swing.JFrame {
         amount.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); // NOI18N
         amount.setForeground(new java.awt.Color(255, 255, 255));
         amount.setText("Enter Amount   :");
-        getContentPane().add(amount, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 250, 104, 24));
+        getContentPane().add(amount, new org.netbeans.lib.awtextra.AbsoluteConstraints(204, 250, 110, 24));
         getContentPane().add(Acc, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 170, 208, 31));
         getContentPane().add(tk, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 250, 208, 32));
 
@@ -142,23 +136,26 @@ public final class Payment extends javax.swing.JFrame {
 
     private void pwordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pwordActionPerformed
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_pwordActionPerformed
 
     private void PayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PayActionPerformed
-        String M_num=Acc.getText();
-        if(M_num.isEmpty()||pword.getText().isEmpty())JOptionPane.showMessageDialog(rootPane,"Mobile No and Password can not be empty");
+        String M_num = Acc.getText();
+        if (M_num.isEmpty() || pword.getText().isEmpty())
+            JOptionPane.showMessageDialog(rootPane, "Mobile No and Password can not be empty");
         /*else if(!M_num.isEmpty()){
             int sz=M_num.length();
             if(sz<11)JOptionPane.showMessageDialog(rootPane,"Mobile_no is incorrect");
         }*/
-        else if(tk.getText().isEmpty())JOptionPane.showMessageDialog(rootPane,"Enter The Required Amount");
-        else if(!tk.getText().equals(total))JOptionPane.showMessageDialog(rootPane,"Enter Correct Amount");
-        else{
-            JOptionPane.showMessageDialog(rootPane,"Payment Completed !!!");
+        else if (tk.getText().isEmpty())
+            JOptionPane.showMessageDialog(rootPane, "Enter The Required Amount");
+        else if (!tk.getText().equals(total))
+            JOptionPane.showMessageDialog(rootPane, "Enter Correct Amount");
+        else {
+            JOptionPane.showMessageDialog(rootPane, "Payment Completed !!!");
             try {
-                String ss=String.valueOf(Nseat);
-                String query = "INSERT INTO My_booking VALUES('" + busname + "','" + ss + "','" + date +"','"+from+"','"+to+"','"+dtime+"','"+atime+"','"+USERID + "');";
+                String ss = String.valueOf(Nseat);
+                String query = "INSERT INTO My_booking VALUES('" + busname + "','" + ss + "','" + date + "','" + from + "','" + to + "','" + dtime + "','" + atime + "','" + USERID + "');";
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
                 Statement st = (Statement) con.createStatement();
@@ -166,9 +163,9 @@ public final class Payment extends javax.swing.JFrame {
             } catch (ClassNotFoundException | SQLException ex) {
                 Logger.getLogger(Complain_Box_User.class.getName()).log(Level.SEVERE, null, ex);
             }
-             setVisible(false);
+            setVisible(false);
             //new Ticket(name,contact,from,to,date,dtime,seat,total,busname,USERID).setVisible(true);
-            new newForm(name,contact,from,to,busname,date,dtime,atime,seat,total,USERID).setVisible(true);
+            new Ticket(name, contact, from, to, busname, date, dtime, atime, seat, total, USERID).setVisible(true);
         }
     }//GEN-LAST:event_PayActionPerformed
 

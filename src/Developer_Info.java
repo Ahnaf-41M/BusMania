@@ -1,25 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 
 import java.awt.Dimension;
 import java.awt.Image;
 import javax.swing.ImageIcon;
 
-/**
- *
- * @author User
- */
 public class Developer_Info extends javax.swing.JFrame {
 
-    /**
-     * Creates new form developer_info
-     */
     public Developer_Info() {
         initComponents();
-        
-        setSize(700,500);
+
+        setSize(700, 500);
         //imgMahadi.setPreferredSize(new Dimension(700, 500));
         //scaleImageBg();
         scaleImageMahadi();
@@ -27,53 +16,49 @@ public class Developer_Info extends javax.swing.JFrame {
         scaleImageAhnaf();
         scaleImageFaisal();
         scaleImageBackground();
+        
+        setResizable(false);
     }
-    
-    public void scaleImageBackground()
-    {
-        ImageIcon bg = new ImageIcon("E:\\JavaProject\\BusMania\\src\\img\\back.jpg");
+
+    public void scaleImageBackground() {
+        ImageIcon bg = new ImageIcon("D:\\Netbeans Projects\\BusMania\\src\\img\\back.jpg");
         Image img = bg.getImage();
         Image imgScale = img.getScaledInstance(imgBackground.getWidth(), imgBackground.getHeight(), Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(imgScale);
         imgBackground.setIcon(scaledIcon);
     }
-    
-    public void scaleImageMahadi()
-    {
-        ImageIcon mahadi = new ImageIcon("E:\\JavaProject\\BusMania\\src\\img\\mahadi.jpg");
+
+    public void scaleImageMahadi() {
+        ImageIcon mahadi = new ImageIcon("D:\\Netbeans Projects\\BusMania\\src\\img\\mahadi.jpg");
         Image img = mahadi.getImage();
         Image imgScale = img.getScaledInstance(imgMahadi.getWidth(), imgMahadi.getHeight(), Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(imgScale);
         imgMahadi.setIcon(scaledIcon);
     }
-    
-    public void scaleImageJabed()
-    {
-        ImageIcon jabed = new ImageIcon("E:\\JavaProject\\BusMania\\src\\img\\jabed.jpeg");
+
+    public void scaleImageJabed() {
+        ImageIcon jabed = new ImageIcon("D:\\Netbeans Projects\\BusMania\\src\\img\\jabed.jpeg");
         Image img = jabed.getImage();
         Image imgScale = img.getScaledInstance(imgJabed.getWidth(), imgJabed.getHeight(), Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(imgScale);
         imgJabed.setIcon(scaledIcon);
     }
-    
-    public void scaleImageAhnaf()
-    {
-        ImageIcon ahnaf = new ImageIcon("E:\\JavaProject\\BusMania\\src\\img\\Ahnaf .jpg");
+
+    public void scaleImageAhnaf() {
+        ImageIcon ahnaf = new ImageIcon("D:\\Netbeans Projects\\BusMania\\src\\img\\Ahnaf .jpg");
         Image img = ahnaf.getImage();
         Image imgScale = img.getScaledInstance(imgAhnaf.getWidth(), imgAhnaf.getHeight(), Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(imgScale);
         imgAhnaf.setIcon(scaledIcon);
     }
-    
-    public void scaleImageFaisal()
-    {
-        ImageIcon faisal = new ImageIcon("E:\\JavaProject\\BusMania\\src\\img\\Faisal.jpg");
+
+    public void scaleImageFaisal() {
+        ImageIcon faisal = new ImageIcon("D:\\Netbeans Projects\\BusMania\\src\\img\\Faisal.jpg");
         Image img = faisal.getImage();
         Image imgScale = img.getScaledInstance(imgFaisal.getWidth(), imgFaisal.getHeight(), Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(imgScale);
         imgFaisal.setIcon(scaledIcon);
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -240,7 +225,7 @@ public class Developer_Info extends javax.swing.JFrame {
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
         // TODO add your handling code here:
-        User_Login lg=new User_Login();
+        User_Login lg = new User_Login();
         lg.setVisible(true);
         dispose();
     }//GEN-LAST:event_backButtonActionPerformed
