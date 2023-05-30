@@ -13,20 +13,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
-
-/**
- *
- * @author Faisal
- */
 public final class Mybooking extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Mybooking
-     */
     String url = "jdbc:mysql://localhost:3306/busmania";
     String username = "root";
     String pass = "123456";

@@ -725,7 +725,7 @@ public final class TicketBooking extends javax.swing.JFrame {
         getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(492, 66, 30, 20));
 
         tlevel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        getContentPane().add(tlevel, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 70, 130, 20));
+        getContentPane().add(tlevel, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 70, 130, 20));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("BUSNAME :");

@@ -118,7 +118,8 @@ public class Add_Bus extends javax.swing.JFrame {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
                 Statement st = (Statement) con.createStatement();
-
+               
+                //if the route doesn't exist create the route
                 if (!Route_Exists(FROM, TO)) {
                     query = "CREATE TABLE " + FROM + "_" + TO + "( bus_name VARCHAR(255) PRIMARY KEY, ticket_fare VARCHAR(255), "
                             + "arrival_time VARCHAR(255), departure_time VARCHAR(255), date VARCHAR(255) );";
@@ -138,7 +139,8 @@ public class Add_Bus extends javax.swing.JFrame {
                 Clear_Fields();
 
             } catch (ClassNotFoundException | SQLException ex) {
-                Logger.getLogger(Create_Account.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(rootPane, "Bus name already exist!","Error",2);
+                //Logger.getLogger(Create_Account.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
