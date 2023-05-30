@@ -144,6 +144,19 @@ public final class TicketBooking extends javax.swing.JFrame {
         jTable1.setRowHeight(30);
     }
 
+    public boolean is_valid_contact(String pcontact) {
+        if (pcontact.length() != 11) {
+            return false;
+        }
+        for (int i = 0; i < pcontact.length(); i++) {
+            if (pcontact.charAt(i) >= '0' && pcontact.charAt(i) <= '9') {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
     public void paysubmit_buttonActionPerformed_work() {
         if (!ok) {
             JOptionPane.showMessageDialog(rootPane, "You should Book first!!!");
@@ -155,15 +168,20 @@ public final class TicketBooking extends javax.swing.JFrame {
         Price = total_price.getText();
         busname = (String) bus_name.getSelectedItem();
 
-        int ind = bus_name.getSelectedIndex();
-        selectedTime = ar.get(ind - 1).DEPARTURE_TIME;
-        atime = ar.get(ind - 1).ARRIVAL_TIME;
-        setVisible(false);
-        //new Payment().setVisible(true);
-        //new Payment(pname,pcontact,SelectedFrom,SelectedTo,SelectedDate,selectedTime,selectedSeat,Nseat,price).setVisible(true);
-        Payment p_ob = new Payment(pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat, Nseat, Price, busname, USERID, atime);
-        p_ob.setVisible(true);
+        if (is_valid_contact(pcontact)) {
+            JOptionPane.showMessageDialog(rootPane, "Enter a valid number", "Error", 2);
+        } else {
+            int ind = bus_name.getSelectedIndex();
+            selectedTime = ar.get(ind - 1).DEPARTURE_TIME;
+            atime = ar.get(ind - 1).ARRIVAL_TIME;
+            dispose();
+            //new Payment().setVisible(true);
+            //new Payment(pname,pcontact,SelectedFrom,SelectedTo,SelectedDate,selectedTime,selectedSeat,Nseat,price).setVisible(true);
+            Payment p_ob = new Payment(pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat, Nseat, Price, busname, USERID, atime);
+            p_ob.setVisible(true);
+        }
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -711,7 +729,7 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel7.setText("CONTACT :");
-        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 40, 70, 20));
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 30, 70, 20));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel8.setText("FROM :");
