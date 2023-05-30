@@ -159,7 +159,7 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     public void paysubmit_buttonActionPerformed_work() {
         if (!ok) {
-            JOptionPane.showMessageDialog(rootPane, "You should Book first!!!");
+            JOptionPane.showMessageDialog(rootPane, "You should Book first!!!","Error",2);
             return;
         }
         SelectedDate = ((JTextField) jDateChooser1.getDateEditor().getUiComponent()).getText();
@@ -175,8 +175,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             selectedTime = ar.get(ind - 1).DEPARTURE_TIME;
             atime = ar.get(ind - 1).ARRIVAL_TIME;
             dispose();
-            //new Payment().setVisible(true);
-            //new Payment(pname,pcontact,SelectedFrom,SelectedTo,SelectedDate,selectedTime,selectedSeat,Nseat,price).setVisible(true);
+          
             Payment p_ob = new Payment(pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat, Nseat, Price, busname, USERID, atime);
             p_ob.setVisible(true);
         }
