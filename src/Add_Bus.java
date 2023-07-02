@@ -10,6 +10,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -21,6 +23,12 @@ public class Add_Bus extends javax.swing.JFrame {
     String url = "jdbc:mysql://localhost:3306/busmania";
     String username = "root";
     String pass = "123456";
+    Connection con;
+    Statement stmt;
+
+    Date next_day = new Date(new Date().getTime() + 86400000);
+    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
+    String tommorow = formatter.format(next_day);
 
     public Add_Bus() {
         initComponents();
@@ -28,6 +36,7 @@ public class Add_Bus extends javax.swing.JFrame {
         setResizable(false);
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
+        Setup_Database_Connection();
     }
 
     public void ScaleImage1() {
@@ -48,15 +57,36 @@ public class Add_Bus extends javax.swing.JFrame {
         jTextField4.setText("");
     }
 
+    public void Setup_Database_Connection() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = (Connection) DriverManager.getConnection(url, username, pass); //2
+            stmt = (Statement) con.createStatement();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e, "Database Error!", 0);
+        }
+    }
+
+    public boolean Bus_Exists(String BUS_NAME) {
+        boolean ok = false;
+        try {
+            String query = "SELECT * FROM routes WHERE bus_name = '" + BUS_NAME + "';";
+            ResultSet rset = stmt.executeQuery(query);
+            if (rset.next()) {
+                ok = true;
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e, "Database Error!", 0);
+        }
+        return ok;
+    }
+
     public boolean Route_Exists(String FROM, String TO) {
         boolean ok = false;
         try {
             String query = "SELECT * FROM routes WHERE from_location = '" + FROM + "' AND to_location = '" + TO + "';";
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
-            Statement st = (Statement) con.createStatement();
-            ResultSet rs = st.executeQuery(query);
-            if (rs.next()) {
+            ResultSet rset = stmt.executeQuery(query);
+            if (rset.next()) {
                 ok = true;
             }
         } catch (Exception e) {
@@ -115,32 +145,29 @@ public class Add_Bus extends javax.swing.JFrame {
                 String query = "";
                 FROM = FROM.toLowerCase();
                 TO = TO.toLowerCase();
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
-                Statement st = (Statement) con.createStatement();
-               
+
                 //if the route doesn't exist create the route
-                if (!Route_Exists(FROM, TO)) {
-                    query = "CREATE TABLE " + FROM + "_" + TO + "( bus_name VARCHAR(255) PRIMARY KEY, ticket_fare VARCHAR(255), "
-                            + "arrival_time VARCHAR(255), departure_time VARCHAR(255), date VARCHAR(255) );";
-                    st.executeUpdate(query);
-                    query = "INSERT INTO routes VALUES('" + FROM + "','" + TO + "');";
-                    st.executeUpdate(query);
+                if (Bus_Exists(BUS_NAME) == false) {
+                    if (Route_Exists(FROM, TO) == false) {
+                        query = "CREATE TABLE " + FROM + "_" + TO + "( bus_name VARCHAR(255) PRIMARY KEY, ticket_fare VARCHAR(255), "
+                                + "arrival_time VARCHAR(255), departure_time VARCHAR(255), date VARCHAR(255) );";
+                        stmt.executeUpdate(query);
+                    }
+                    query = "INSERT INTO routes VALUES('" + BUS_NAME + "','" + FROM + "','" + TO + "');";
+                    stmt.executeUpdate(query);
+
+                    query = "INSERT INTO " + FROM + "_" + TO + " VALUES ('" + BUS_NAME + "'," + Integer.valueOf(TICKET_FARE)
+                            + ",'" + ARRIVAL_TIME + "','" + DEPT_TIME + "','" + tommorow + "');";
+                    stmt.executeUpdate(query);
+
+                    JOptionPane.showMessageDialog(null, "Bus has been added successfully!");
+                    Clear_Fields();
+                } else {
+                    JOptionPane.showMessageDialog(rootPane, "Bus name already exist!", "Error", 2);
                 }
-                //System.out.println(FROM);
-                query = "INSERT INTO " + FROM + "_" + TO + " VALUES ('" + BUS_NAME + "'," + Integer.valueOf(TICKET_FARE)
-                        + ",'" + ARRIVAL_TIME + "','" + DEPT_TIME + "','30-03-2022');";
 
-//            System.out.println(query);
-                st.executeUpdate(query);
-                JOptionPane.showMessageDialog(null, "Bus has been added successfully!");
-
-                //Clearing info
-                Clear_Fields();
-
-            } catch (ClassNotFoundException | SQLException ex) {
-                JOptionPane.showMessageDialog(rootPane, "Bus name already exist!","Error",2);
-                //Logger.getLogger(Create_Account.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(rootPane, "Database Error!", "Error", 2);
             }
         }
     }

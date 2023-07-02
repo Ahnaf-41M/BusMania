@@ -143,6 +143,11 @@ public final class Admin_Login extends javax.swing.JFrame {
 
         admin_pass.setFont(new java.awt.Font("Calibri", 0, 16)); // NOI18N
         admin_pass.setToolTipText("");
+        admin_pass.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                admin_passKeyPressed(evt);
+            }
+        });
         getContentPane().add(admin_pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 200, 460, 30));
         getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 820, 460));
 
@@ -166,6 +171,13 @@ public final class Admin_Login extends javax.swing.JFrame {
         ob.setVisible(true);
         dispose();
     }//GEN-LAST:event_go_back_buttonActionPerformed
+
+    private void admin_passKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_admin_passKeyPressed
+        // TODO add your handling code here:
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER){
+            SigninActionPerformed_Work();
+        }
+    }//GEN-LAST:event_admin_passKeyPressed
 
     /**
      * @param args the command line arguments
