@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +31,8 @@ public class Add_Bus extends javax.swing.JFrame {
     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
     String tommorow = formatter.format(next_day);
 
+    ArrayList<String> seat_list = new ArrayList<String>();
+
     public Add_Bus() {
         initComponents();
         ScaleImage1();
@@ -37,6 +40,16 @@ public class Add_Bus extends javax.swing.JFrame {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         Setup_Database_Connection();
+        Add_Seat_Names();
+    }
+
+    public void Add_Seat_Names() {
+        for (char ch = 'A'; ch <= 'J'; ch++) {
+            for (char i = '1'; i <= '4'; i++) {
+                String sname = String.valueOf(ch) + String.valueOf(i);
+                seat_list.add(sname);
+            }
+        }
     }
 
     public void ScaleImage1() {
@@ -152,6 +165,14 @@ public class Add_Bus extends javax.swing.JFrame {
                         query = "CREATE TABLE " + FROM + "_" + TO + "( bus_name VARCHAR(255) PRIMARY KEY, ticket_fare VARCHAR(255), "
                                 + "arrival_time VARCHAR(255), departure_time VARCHAR(255), date VARCHAR(255) );";
                         stmt.executeUpdate(query);
+                        query = "SET GLOBAL sql_safe_updates=0;";
+                        stmt.executeUpdate(query);
+
+                        query = "ALTER TABLE " + FROM + "_" + TO + " ADD ";
+                        for (String sname : seat_list) {
+                            String q_temp = query + sname + " varchar(255);";
+                            stmt.executeUpdate(q_temp);
+                        }
                     }
                     query = "INSERT INTO routes VALUES('" + BUS_NAME + "','" + FROM + "','" + TO + "');";
                     stmt.executeUpdate(query);
@@ -165,9 +186,8 @@ public class Add_Bus extends javax.swing.JFrame {
                 } else {
                     JOptionPane.showMessageDialog(rootPane, "Bus name already exist!", "Error", 2);
                 }
-
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(rootPane, "Database Error!", "Error", 2);
+                JOptionPane.showMessageDialog(rootPane, ex, "Error", 2);
             }
         }
     }
