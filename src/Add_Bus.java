@@ -41,6 +41,7 @@ public class Add_Bus extends javax.swing.JFrame {
         this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         Setup_Database_Connection();
         Add_Seat_Names();
+        Update_Seats();
     }
 
     public void Add_Seat_Names() {
@@ -49,6 +50,41 @@ public class Add_Bus extends javax.swing.JFrame {
                 String sname = String.valueOf(ch) + String.valueOf(i);
                 seat_list.add(sname);
             }
+        }
+    }
+
+    public void Update_Seats() {
+        try {
+            String query = "SELECT * FROM routes;";
+            ResultSet rset = stmt.executeQuery(query);
+            Connection tmp_con = (Connection) DriverManager.getConnection(url, username, pass); //2
+            Statement tmp_stmt = (Statement) tmp_con.createStatement();
+            while (rset.next()) {
+                String FROM = rset.getString("from_location");
+                String TO = rset.getString("to_location");
+                String table_name = FROM + "_" + TO;
+                query = "SELECT * FROM " + table_name + ";";
+                ResultSet tmp_rset = tmp_stmt.executeQuery(query);
+                String dt = "";
+                
+                if (tmp_rset.next()) {
+                    dt = tmp_rset.getString("date");
+                }
+                int is_equal = dt.compareTo(tommorrow);
+                
+                if (is_equal != 0) {
+                    query = "UPDATE " + table_name + " SET date = '" + tommorrow + "';";
+                    tmp_stmt.executeUpdate(query);
+//                    System.out.println(query);
+                    for (String sname : seat_list) {
+                        query = "UPDATE " + table_name + " SET " + sname + " = '0';";
+                        tmp_stmt.executeUpdate(query);
+                    }
+                }
+
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, ex, "Database Error!", 0);
         }
     }
 
