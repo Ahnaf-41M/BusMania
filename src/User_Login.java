@@ -76,7 +76,7 @@ public final class User_Login extends javax.swing.JFrame {
                 }
 
             } catch (ClassNotFoundException | SQLException ex) {
-                Logger.getLogger(User_Login.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, "Wrong user id or password!\nTry again!", "Alert", 0);
             }
         }
     }

@@ -29,7 +29,7 @@ public class Add_Bus extends javax.swing.JFrame {
 
     Date next_day = new Date(new Date().getTime() + 86400000);
     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy");
-    String tommorow = formatter.format(next_day);
+    String tommorrow = formatter.format(next_day);
 
     ArrayList<String> seat_list = new ArrayList<String>();
 
@@ -108,6 +108,49 @@ public class Add_Bus extends javax.swing.JFrame {
         return ok;
     }
 
+    public void Create_Route(String FROM, String TO) {
+        try {
+            String query = "CREATE TABLE " + FROM + "_" + TO + "( bus_name VARCHAR(255) PRIMARY KEY, ticket_fare VARCHAR(255), "
+                    + "arrival_time VARCHAR(255), departure_time VARCHAR(255), date VARCHAR(255) );";
+            stmt.executeUpdate(query);
+            for (String sname : seat_list) {
+                // add column
+                query = "ALTER TABLE " + FROM + "_" + TO + " ADD ";
+                String q_temp = query + sname + " varchar(255);";
+                stmt.executeUpdate(q_temp);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(rootPane, ex, "Error", 2);
+        }
+    }
+
+    public void Add_Values_to_Route(String BUS_NAME, String FROM, String TO, String TICKET_FARE, String ARRIVAL_TIME, String DEPT_TIME) {
+        try {
+            // Insert values in routes table
+            String query = "INSERT INTO routes VALUES('" + BUS_NAME + "','" + FROM + "','" + TO + "');";
+            stmt.executeUpdate(query);
+
+            // Insert values in the desired route (i.e. noakhali_chittagong)
+            query = "INSERT INTO " + FROM + "_" + TO + " (bus_name,ticket_fare,arrival_time,departure_time,date) "
+                    + "VALUES ('" + BUS_NAME + "'," + Integer.valueOf(TICKET_FARE)
+                    + ",'" + ARRIVAL_TIME + "','" + DEPT_TIME + "','" + tommorrow + "');";
+
+            System.out.println(query);
+            stmt.executeUpdate(query);
+
+            for (String sname : seat_list) {
+                // add value in sname column
+                query = "UPDATE " + FROM + "_" + TO + " SET " + sname + " = '0' WHERE bus_name = '" + BUS_NAME + "';";
+                stmt.executeUpdate(query);
+            }
+
+            JOptionPane.showMessageDialog(null, "Bus has been added successfully!");
+            Clear_Fields();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(rootPane, ex, "Error", 2);
+        }
+    }
+
     public void submit_buttonActionPerformed_work() {
         String FROM = (String) jComboBox1.getSelectedItem();
         String TO = (String) jComboBox2.getSelectedItem();
@@ -160,29 +203,15 @@ public class Add_Bus extends javax.swing.JFrame {
                 TO = TO.toLowerCase();
 
                 //if the route doesn't exist create the route
+                query = "SET GLOBAL sql_safe_updates=0;";
+                stmt.executeUpdate(query);
+
                 if (Bus_Exists(BUS_NAME) == false) {
                     if (Route_Exists(FROM, TO) == false) {
-                        query = "CREATE TABLE " + FROM + "_" + TO + "( bus_name VARCHAR(255) PRIMARY KEY, ticket_fare VARCHAR(255), "
-                                + "arrival_time VARCHAR(255), departure_time VARCHAR(255), date VARCHAR(255) );";
-                        stmt.executeUpdate(query);
-                        query = "SET GLOBAL sql_safe_updates=0;";
-                        stmt.executeUpdate(query);
-
-                        query = "ALTER TABLE " + FROM + "_" + TO + " ADD ";
-                        for (String sname : seat_list) {
-                            String q_temp = query + sname + " varchar(255);";
-                            stmt.executeUpdate(q_temp);
-                        }
+                        Create_Route(FROM, TO);
                     }
-                    query = "INSERT INTO routes VALUES('" + BUS_NAME + "','" + FROM + "','" + TO + "');";
-                    stmt.executeUpdate(query);
+                    Add_Values_to_Route(BUS_NAME, FROM, TO, TICKET_FARE, ARRIVAL_TIME, DEPT_TIME);
 
-                    query = "INSERT INTO " + FROM + "_" + TO + " VALUES ('" + BUS_NAME + "'," + Integer.valueOf(TICKET_FARE)
-                            + ",'" + ARRIVAL_TIME + "','" + DEPT_TIME + "','" + tommorow + "');";
-                    stmt.executeUpdate(query);
-
-                    JOptionPane.showMessageDialog(null, "Bus has been added successfully!");
-                    Clear_Fields();
                 } else {
                     JOptionPane.showMessageDialog(rootPane, "Bus name already exist!", "Error", 2);
                 }
