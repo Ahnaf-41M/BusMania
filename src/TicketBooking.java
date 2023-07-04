@@ -137,15 +137,7 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     }
 
-    public void getInputs() {
-        selectedFrom = (String) fromComboBox.getSelectedItem();
-        selectedTo = (String) toComboBox.getSelectedItem();
-        selectedDate = ((JTextField) dateComboBox.getDateEditor().getUiComponent()).getText();
-        BUS_NAME = (String) busnameComboBox.getSelectedItem();
-        pName = (String) nameTF.getText();
-        pContact = (String) contactTF.getText();
-        Price = (String) totalPriceLabel.getText();
-
+    public void setNseat() {
         if (BUS_NAME.compareTo("Select") != 0 && BUS_NAME.isEmpty() == false) {
             try {
                 String query = "SELECT * FROM my_booking WHERE user = '" + USERID + "' AND bus = '" + BUS_NAME + "';";
@@ -157,7 +149,21 @@ public final class TicketBooking extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(dateComboBox, ex, "getInputs", 0);
             }
         }
+    }
 
+    public void getInputs() {
+        selectedFrom = (String) fromComboBox.getSelectedItem();
+        selectedTo = (String) toComboBox.getSelectedItem();
+        selectedDate = ((JTextField) dateComboBox.getDateEditor().getUiComponent()).getText();
+        BUS_NAME = (String) busnameComboBox.getSelectedItem();
+        pName = (String) nameTF.getText();
+        pContact = (String) contactTF.getText();
+        Price = (String) totalPriceLabel.getText();
+
+        if (BUS_NAME == null) {
+            BUS_NAME = "";
+        }
+        setNseat();
     }
 
     public void setInputs() {
@@ -280,11 +286,8 @@ public final class TicketBooking extends javax.swing.JFrame {
 //        BUS_NAME = (String) busnameComboBox.getSelectedItem();
 //        selectedFrom = ((String) fromComboBox.getSelectedItem()).toLowerCase();
 //        selectedTo = ((String) toComboBox.getSelectedItem()).toLowerCase();
-        if (BUS_NAME == null) {
-            BUS_NAME = "Select";
-        }
 
-        if (selectedFrom.compareTo(s) == 0 || selectedTo.compareTo(s) == 0
+        if (selectedFrom.compareTo(s) == 0 || selectedTo.compareTo(s) == 0 || BUS_NAME == null
                 || BUS_NAME.compareTo(s) == 0 || selectedFrom.compareTo(selectedTo) == 0) {
             Set_Seats_To_Green();
         } else {
@@ -551,15 +554,15 @@ public final class TicketBooking extends javax.swing.JFrame {
                         }
                     } else {
                         busnameComboBox.removeAllItems();
-                        busnameComboBox.addItem("Select");
-                        busnameComboBox.setSelectedIndex(0);
+//                        busnameComboBox.addItem("Select");
+//                        busnameComboBox.setSelectedIndex(0);
                         Set_Seats_To_Green();
                     }
 
                 } else {
                     busnameComboBox.removeAllItems();
-                    busnameComboBox.addItem("Select");
-                    busnameComboBox.setSelectedIndex(0);
+//                    busnameComboBox.addItem("Select");
+//                    busnameComboBox.setSelectedIndex(0);
                     Set_Seats_To_Green();
                 }
 
@@ -1450,11 +1453,11 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void fromComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromComboBoxActionPerformed
         // TODO add your handling code here:
 
+        getInputs();
         Search2();
         Set_Seat_Colors();
-        getInputs();
-//        selectedFrom = fromComboBox.getSelectedItem().toString();
 
+//        selectedFrom = fromComboBox.getSelectedItem().toString();
 //        System.out.println(selectedFrom);
         if (selectedFrom.compareTo("Select") == 0) {
             fromLabel.setText("");
@@ -1465,12 +1468,12 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void toComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toComboBoxActionPerformed
         // TODO add your handling code here:
 
+        getInputs();
         Search2();
         Set_Seat_Colors();
-        getInputs();
+
 //        selectedTo = toComboBox.getSelectedItem().toString();
 //        System.out.println(selectedTo);
-
         if (selectedTo.compareTo("Select") == 0) {
             toLabel.setText("");
         } else
@@ -2417,9 +2420,10 @@ public final class TicketBooking extends javax.swing.JFrame {
             } else {
 //            String selectd = (String) jComboBox2.getSelectedItem();
                 int ind = busnameComboBox.getSelectedIndex();
-                BUS_NAME = busnameComboBox.getSelectedItem().toString();
+                getInputs();
+//                BUS_NAME = busnameComboBox.getSelectedItem().toString();
 
-                String table_name = selectedFrom + "_" + selectedTo;
+                String table_name = selectedFrom.toLowerCase() + "_" + selectedTo.toLowerCase();
                 String query = "";
 //            jLabel11.setText(String.valueOf(ar.get(ind-1).FARE));
                 totalPriceLabel.setText(String.valueOf(Nseat * ar.get(ind - 1).FARE));
@@ -2428,7 +2432,6 @@ public final class TicketBooking extends javax.swing.JFrame {
                     A1.setBackground(Color.red);
                     query = "UPDATE " + table_name + " SET A1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
-//                    System.out.println(query);
                 }
                 if (A2.getBackground() == yellow) {
                     A2.setBackground(Color.red);
@@ -2799,12 +2802,13 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void SearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchActionPerformed
         // TODO add your handling code here:
         if (!ok) {
-            selectedFrom = ((String) fromComboBox.getSelectedItem()).toLowerCase();
-            selectedTo = ((String) toComboBox.getSelectedItem()).toLowerCase();
+            getInputs();
+//            selectedFrom = ((String) fromComboBox.getSelectedItem()).toLowerCase();
+//            selectedTo = ((String) toComboBox.getSelectedItem()).toLowerCase();
 
             try {
-                if (Route_Exists(selectedFrom, selectedTo) == true) {
-                    String query = "SELECT * FROM " + selectedFrom + "_" + selectedTo + ";";
+                if (Route_Exists(selectedFrom.toLowerCase(), selectedTo.toLowerCase()) == true) {
+                    String query = "SELECT * FROM " + selectedFrom.toLowerCase() + "_" + selectedTo.toLowerCase() + ";";
                     Class.forName("com.mysql.cj.jdbc.Driver");
                     Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
                     Statement st = (Statement) con.createStatement();
@@ -2862,8 +2866,10 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void dateComboBoxPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateComboBoxPropertyChange
         // TODO add your handling code here:
-        selectedDate = ((JTextField) dateComboBox.getDateEditor().getUiComponent()).getText();
-        dateLabel.setText(selectedDate);
+        getInputs();
+        setInputs();
+//        selectedDate = ((JTextField) dateComboBox.getDateEditor().getUiComponent()).getText();
+//        dateLabel.setText(selectedDate);
     }//GEN-LAST:event_dateComboBoxPropertyChange
 
     private void busnameComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_busnameComboBoxItemStateChanged
