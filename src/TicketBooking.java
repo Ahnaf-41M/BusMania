@@ -54,8 +54,9 @@ public final class TicketBooking extends javax.swing.JFrame {
     Connection con;
     Statement stmt;
     Integer Nseat = 0;
-    String USERID, atime;
-    String Price, BUS_NAME = "", pname = "", pcontact = "", SelectedFrom = "", SelectedTo = "", SelectedDate = "", selectedTime = "", selectedSeat = "";
+    String USERID, aTime;
+    String Price, BUS_NAME = "", pName = "", pContact = "", selectedFrom = "", selectedTo = "";
+    String selectedDate = "", selectedTime = "", selectedSeat = "";
     boolean ok = false;
 
     Date next_day = new Date(new Date().getTime() + 86400000);
@@ -79,7 +80,7 @@ public final class TicketBooking extends javax.swing.JFrame {
         Add_Seat_Names();
         Update_Seats();
 
-        bus_name.setSelectedIndex(0);
+        busnameComboBox.setSelectedIndex(0);
     }
 
     public void Setup_Database_Connection() {
@@ -133,6 +134,36 @@ public final class TicketBooking extends javax.swing.JFrame {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, ex, "Database Error!", 0);
         }
+
+    }
+
+    public void getInputs() {
+        selectedFrom = (String) fromComboBox.getSelectedItem();
+        selectedTo = (String) toComboBox.getSelectedItem();
+        selectedDate = ((JTextField) dateComboBox.getDateEditor().getUiComponent()).getText();
+        BUS_NAME = (String) busnameComboBox.getSelectedItem();
+        pName = (String) nameTF.getText();
+        pContact = (String) contactTF.getText();
+        Price = (String) totalPriceLabel.getText();
+
+        if (BUS_NAME.compareTo("Select") != 0 && BUS_NAME.isEmpty() == false) {
+            try {
+                String query = "SELECT * FROM my_booking WHERE user = '" + USERID + "' AND bus = '" + BUS_NAME + "';";
+                ResultSet rset = stmt.executeQuery(query);
+                if (rset.next()) {
+                    Nseat = Integer.valueOf(rset.getString("seatBooked"));
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dateComboBox, ex, "getInputs", 0);
+            }
+        }
+
+    }
+
+    public void setInputs() {
+        fromLabel.setText(selectedFrom);
+        toLabel.setText(selectedTo);
+        dateLabel.setText(selectedDate);
 
     }
 
@@ -208,16 +239,14 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     public void Search2() {
         if (!ok) {
-            SelectedFrom = ((String) source.getSelectedItem()).toLowerCase();
-            SelectedTo = ((String) destination.getSelectedItem()).toLowerCase();
+//            selectedFrom = ((String) fromComboBox.getSelectedItem()).toLowerCase();
+//            selectedTo = ((String) toComboBox.getSelectedItem()).toLowerCase();
+            getInputs();
 
             try {
-                if (Route_Exists(SelectedFrom, SelectedTo) == true) {
-                    String query = "SELECT * FROM " + SelectedFrom + "_" + SelectedTo + ";";
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                    Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
-                    Statement st = (Statement) con.createStatement();
-                    ResultSet rs = st.executeQuery(query);
+                if (Route_Exists(selectedFrom.toLowerCase(), selectedTo.toLowerCase()) == true) {
+                    String query = "SELECT * FROM " + selectedFrom.toLowerCase() + "_" + selectedTo.toLowerCase() + ";";
+                    ResultSet rs = stmt.executeQuery(query);
 
                     ar.clear();
                     while (rs.next()) {
@@ -232,12 +261,12 @@ public final class TicketBooking extends javax.swing.JFrame {
                     dm.getDataVector().removeAllElements();
                     dm.fireTableDataChanged();
 
-                    bus_name.removeAllItems();
-                    bus_name.addItem("Select");
-                    bus_name.setSelectedIndex(0);
+                    busnameComboBox.removeAllItems();
+                    busnameComboBox.addItem("Select");
+                    busnameComboBox.setSelectedIndex(0);
                 }
 
-            } catch (ClassNotFoundException | SQLException ex) {
+            } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, ex, "Error", 0);
             }
 
@@ -247,21 +276,22 @@ public final class TicketBooking extends javax.swing.JFrame {
     public void Set_Seat_Colors() {
 
         String s = "Select";
-        BUS_NAME = (String) bus_name.getSelectedItem();
-        SelectedFrom = ((String) source.getSelectedItem()).toLowerCase();
-        SelectedTo = ((String) destination.getSelectedItem()).toLowerCase();
+        getInputs();
+//        BUS_NAME = (String) busnameComboBox.getSelectedItem();
+//        selectedFrom = ((String) fromComboBox.getSelectedItem()).toLowerCase();
+//        selectedTo = ((String) toComboBox.getSelectedItem()).toLowerCase();
         if (BUS_NAME == null) {
             BUS_NAME = "Select";
         }
 
-        if (SelectedFrom.compareTo(s) == 0 || SelectedTo.compareTo(s) == 0
-                || BUS_NAME.compareTo(s) == 0 || SelectedFrom.compareTo(SelectedTo) == 0) {
+        if (selectedFrom.compareTo(s) == 0 || selectedTo.compareTo(s) == 0
+                || BUS_NAME.compareTo(s) == 0 || selectedFrom.compareTo(selectedTo) == 0) {
             Set_Seats_To_Green();
         } else {
             try {
 
-                if (Route_Exists(SelectedFrom, SelectedTo) == true) {
-                    String table_name = SelectedFrom + "_" + SelectedTo;
+                if (Route_Exists(selectedFrom.toLowerCase(), selectedTo.toLowerCase()) == true) {
+                    String table_name = selectedFrom.toLowerCase() + "_" + selectedTo.toLowerCase();
                     String query = "SELECT * FROM " + table_name + " WHERE bus_name = '" + BUS_NAME + "';";
 
                     ResultSet rset1 = stmt.executeQuery(query);
@@ -520,16 +550,16 @@ public final class TicketBooking extends javax.swing.JFrame {
 
                         }
                     } else {
-                        bus_name.removeAllItems();
-                        bus_name.addItem("Select");
-                        bus_name.setSelectedIndex(0);
+                        busnameComboBox.removeAllItems();
+                        busnameComboBox.addItem("Select");
+                        busnameComboBox.setSelectedIndex(0);
                         Set_Seats_To_Green();
                     }
 
                 } else {
-                    bus_name.removeAllItems();
-                    bus_name.addItem("Select");
-                    bus_name.setSelectedIndex(0);
+                    busnameComboBox.removeAllItems();
+                    busnameComboBox.addItem("Select");
+                    busnameComboBox.setSelectedIndex(0);
                     Set_Seats_To_Green();
                 }
 
@@ -558,8 +588,8 @@ public final class TicketBooking extends javax.swing.JFrame {
     public void showTable() {
         ar2.clear();
 
-        bus_name.removeAllItems();
-        bus_name.addItem("Select");
+        busnameComboBox.removeAllItems();
+        busnameComboBox.addItem("Select");
 
         DefaultTableModel mod = (DefaultTableModel) (jTable1.getModel());
         Object[] col = new Object[4];
@@ -571,7 +601,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             col[3] = ar.get(i).DEPARTURE_TIME;
             mod.addRow(col);
             ar2.add(ar.get(i).BUS_NAME);
-            bus_name.addItem(ar.get(i).BUS_NAME);
+            busnameComboBox.addItem(ar.get(i).BUS_NAME);
         }
     }
 
@@ -614,12 +644,12 @@ public final class TicketBooking extends javax.swing.JFrame {
         jTable1.setRowHeight(30);
     }
 
-    public boolean is_valid_contact(String pcontact) {
-        if (pcontact.length() != 11) {
+    public boolean is_valid_contact(String pContact) {
+        if (pContact.length() != 11) {
             return false;
         }
-        for (int i = 0; i < pcontact.length(); i++) {
-            if (pcontact.charAt(i) >= '0' && pcontact.charAt(i) <= '9') {
+        for (int i = 0; i < pContact.length(); i++) {
+            if (pContact.charAt(i) >= '0' && pContact.charAt(i) <= '9') {
                 continue;
             }
             return false;
@@ -632,34 +662,35 @@ public final class TicketBooking extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "You should Book first!!!", "Error", 2);
             return;
         }
-        SelectedDate = ((JTextField) jDateChooser1.getDateEditor().getUiComponent()).getText();
-        pname = name_field.getText();
-        pcontact = contact_field.getText();
-        Price = total_price.getText();
-        BUS_NAME = (String) bus_name.getSelectedItem();
+        getInputs();
+//        selectedDate = ((JTextField) dateComboBox.getDateEditor().getUiComponent()).getText();
+//        pName = nameTF.getText();
+//        pContact = contactTF.getText();
+//        Price = totalPriceLabel.getText();
+//        BUS_NAME = (String) busnameComboBox.getSelectedItem();
 
-        if (is_valid_contact(pcontact)) {
+        if (is_valid_contact(pContact)) {
             JOptionPane.showMessageDialog(rootPane, "Enter a valid number", "Error", 2);
         } else {
-            int ind = bus_name.getSelectedIndex();
+            int ind = busnameComboBox.getSelectedIndex();
             selectedTime = ar.get(ind - 1).DEPARTURE_TIME;
-            atime = ar.get(ind - 1).ARRIVAL_TIME;
+            aTime = ar.get(ind - 1).ARRIVAL_TIME;
             dispose();
 
-            Payment p_ob = new Payment(pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat, Nseat, Price, BUS_NAME, USERID, atime);
+            Payment p_ob = new Payment(pName, pContact, selectedFrom, selectedTo, selectedDate, selectedTime, selectedSeat, Nseat, Price, BUS_NAME, USERID, aTime);
             p_ob.setVisible(true);
         }
     }
 
     public boolean Check_Fields() {
         boolean ok = false;
-        if (source_label.getText().isEmpty()) {
+        if (fromLabel.getText().isEmpty()) {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
-        } else if (destination_label.getText().isEmpty()) {
+        } else if (toLabel.getText().isEmpty()) {
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
-        } else if (ticket_price.getText().isEmpty()) {
+        } else if (ticketPriceLabel.getText().isEmpty()) {
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
-        } else if (name_field.getText().isEmpty() || contact_field.getText().isEmpty() || dateee.getText().isEmpty()) {
+        } else if (nameTF.getText().isEmpty() || contactTF.getText().isEmpty() || dateLabel.getText().isEmpty()) {
             JOptionPane.showMessageDialog(rootPane, "Fill up required fields");
         } else {
             ok = true;
@@ -678,15 +709,15 @@ public final class TicketBooking extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        source = new javax.swing.JComboBox<>();
-        destination = new javax.swing.JComboBox<>();
+        fromComboBox = new javax.swing.JComboBox<>();
+        toComboBox = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         Search = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
-        name_field = new javax.swing.JTextField();
-        contact_field = new javax.swing.JTextField();
+        nameTF = new javax.swing.JTextField();
+        contactTF = new javax.swing.JTextField();
         A1 = new javax.swing.JButton();
         A2 = new javax.swing.JButton();
         A4 = new javax.swing.JButton();
@@ -735,20 +766,20 @@ public final class TicketBooking extends javax.swing.JFrame {
         SeatB = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        source_label = new javax.swing.JLabel();
+        fromLabel = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        destination_label = new javax.swing.JLabel();
+        toLabel = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
-        total_price = new javax.swing.JLabel();
+        totalPriceLabel = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
-        nseat_field = new javax.swing.JTextField();
-        dateee = new javax.swing.JTextField();
+        nseatTF = new javax.swing.JTextField();
+        dateLabel = new javax.swing.JTextField();
         Reset = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
-        ticket_price = new javax.swing.JLabel();
+        ticketPriceLabel = new javax.swing.JLabel();
         Book = new javax.swing.JButton();
         paysubmit_button = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -756,52 +787,52 @@ public final class TicketBooking extends javax.swing.JFrame {
         jButton45 = new javax.swing.JButton();
         jButton46 = new javax.swing.JButton();
         jButton47 = new javax.swing.JButton();
-        bus_name = new javax.swing.JComboBox<>();
+        busnameComboBox = new javax.swing.JComboBox<>();
         jLabel16 = new javax.swing.JLabel();
-        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        dateComboBox = new com.toedter.calendar.JDateChooser();
         jLabel11 = new javax.swing.JLabel();
         Background = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        source.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        source.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Noakhali", "Dhaka", "Chittagong", "CoxBazar", "Cumilla", "Feni", " " }));
-        source.addItemListener(new java.awt.event.ItemListener() {
+        fromComboBox.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        fromComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Noakhali", "Dhaka", "Chittagong", "CoxBazar", "Cumilla", "Feni", " " }));
+        fromComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                sourceItemStateChanged(evt);
+                fromComboBoxItemStateChanged(evt);
             }
         });
-        source.addMouseListener(new java.awt.event.MouseAdapter() {
+        fromComboBox.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                sourceMouseClicked(evt);
+                fromComboBoxMouseClicked(evt);
             }
         });
-        source.addActionListener(new java.awt.event.ActionListener() {
+        fromComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sourceActionPerformed(evt);
+                fromComboBoxActionPerformed(evt);
             }
         });
-        getContentPane().add(source, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 45, 140, 30));
+        getContentPane().add(fromComboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 45, 140, 30));
 
-        destination.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        destination.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Dhaka", "Cumilla", "Chittagong", "Feni", "CoxBazar", "Noakhali" }));
-        destination.addItemListener(new java.awt.event.ItemListener() {
+        toComboBox.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        toComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Dhaka", "Cumilla", "Chittagong", "Feni", "CoxBazar", "Noakhali" }));
+        toComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                destinationItemStateChanged(evt);
+                toComboBoxItemStateChanged(evt);
             }
         });
-        destination.addMouseListener(new java.awt.event.MouseAdapter() {
+        toComboBox.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                destinationMouseClicked(evt);
+                toComboBoxMouseClicked(evt);
             }
         });
-        destination.addActionListener(new java.awt.event.ActionListener() {
+        toComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                destinationActionPerformed(evt);
+                toComboBoxActionPerformed(evt);
             }
         });
-        getContentPane().add(destination, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 85, 140, 30));
+        getContentPane().add(toComboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 85, 140, 30));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setText("FROM ");
@@ -828,11 +859,11 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel6.setText("NAME :");
         getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 70, 50, 20));
 
-        name_field.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
-        getContentPane().add(name_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 70, 160, 30));
+        nameTF.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        getContentPane().add(nameTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 70, 160, 30));
 
-        contact_field.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
-        getContentPane().add(contact_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 110, 160, 30));
+        contactTF.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
+        getContentPane().add(contactTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 110, 160, 30));
 
         A1.setBackground(new java.awt.Color(0, 255, 0));
         A1.setFont(new java.awt.Font("Segoe UI Symbol", 0, 12)); // NOI18N
@@ -1240,15 +1271,15 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel8.setText("FROM :");
         getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 30, 50, 20));
 
-        source_label.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        getContentPane().add(source_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 30, 110, 20));
+        fromLabel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        getContentPane().add(fromLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 30, 110, 20));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("TO :");
         getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 60, 30, 20));
 
-        destination_label.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        getContentPane().add(destination_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 60, 110, 20));
+        toLabel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        getContentPane().add(toLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 60, 110, 20));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("BUSNAME :");
@@ -1261,8 +1292,8 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel15.setText("DATE :");
         getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 90, 40, 20));
 
-        total_price.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
-        getContentPane().add(total_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 160, 100, 20));
+        totalPriceLabel.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
+        getContentPane().add(totalPriceLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 160, 100, 20));
 
         jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel17.setText("NO OF SEATS:");
@@ -1272,18 +1303,18 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel19.setText("TOTAL PRICE :");
         getContentPane().add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 160, 90, 20));
 
-        nseat_field.setEditable(false);
-        nseat_field.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
-        getContentPane().add(nseat_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 150, 160, 30));
+        nseatTF.setEditable(false);
+        nseatTF.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        getContentPane().add(nseatTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 150, 160, 30));
 
-        dateee.setEditable(false);
-        dateee.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        dateee.addActionListener(new java.awt.event.ActionListener() {
+        dateLabel.setEditable(false);
+        dateLabel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        dateLabel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                dateeeActionPerformed(evt);
+                dateLabelActionPerformed(evt);
             }
         });
-        getContentPane().add(dateee, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 90, 100, 30));
+        getContentPane().add(dateLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 90, 100, 30));
 
         Reset.setBackground(new java.awt.Color(0, 0, 0));
         Reset.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -1300,8 +1331,8 @@ public final class TicketBooking extends javax.swing.JFrame {
         jLabel9.setText("PRICE :");
         getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 130, 40, 20));
 
-        ticket_price.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
-        getContentPane().add(ticket_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 130, 90, 20));
+        ticketPriceLabel.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
+        getContentPane().add(ticketPriceLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 130, 90, 20));
 
         Book.setBackground(new java.awt.Color(0, 0, 0));
         Book.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -1378,35 +1409,35 @@ public final class TicketBooking extends javax.swing.JFrame {
         });
         getContentPane().add(jButton47, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 510, 100, 30));
 
-        bus_name.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
-        bus_name.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
-        bus_name.setToolTipText("");
-        bus_name.addItemListener(new java.awt.event.ItemListener() {
+        busnameComboBox.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
+        busnameComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
+        busnameComboBox.setToolTipText("");
+        busnameComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                bus_nameItemStateChanged(evt);
+                busnameComboBoxItemStateChanged(evt);
             }
         });
-        bus_name.addMouseListener(new java.awt.event.MouseAdapter() {
+        busnameComboBox.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                bus_nameMouseClicked(evt);
+                busnameComboBoxMouseClicked(evt);
             }
         });
-        bus_name.addActionListener(new java.awt.event.ActionListener() {
+        busnameComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bus_nameActionPerformed(evt);
+                busnameComboBoxActionPerformed(evt);
             }
         });
-        getContentPane().add(bus_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 30, 160, -1));
+        getContentPane().add(busnameComboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 30, 160, -1));
 
         jLabel16.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         getContentPane().add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, 480, 230));
 
-        jDateChooser1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+        dateComboBox.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                jDateChooser1PropertyChange(evt);
+                dateComboBoxPropertyChange(evt);
             }
         });
-        getContentPane().add(jDateChooser1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 120, 140, -1));
+        getContentPane().add(dateComboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 120, 140, -1));
 
         jLabel11.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         getContentPane().add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 230, 230));
@@ -1416,52 +1447,54 @@ public final class TicketBooking extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void sourceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceActionPerformed
+    private void fromComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromComboBoxActionPerformed
         // TODO add your handling code here:
-        
+
         Search2();
         Set_Seat_Colors();
-        SelectedFrom = source.getSelectedItem().toString();
+        getInputs();
+//        selectedFrom = fromComboBox.getSelectedItem().toString();
 
-//        System.out.println(SelectedFrom);
-        if (SelectedFrom.compareTo("Select") == 0) {
-            source_label.setText("");
+//        System.out.println(selectedFrom);
+        if (selectedFrom.compareTo("Select") == 0) {
+            fromLabel.setText("");
         } else
-            source_label.setText(SelectedFrom);
-    }//GEN-LAST:event_sourceActionPerformed
+            fromLabel.setText(selectedFrom);
+    }//GEN-LAST:event_fromComboBoxActionPerformed
 
-    private void destinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationActionPerformed
+    private void toComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toComboBoxActionPerformed
         // TODO add your handling code here:
-        
+
         Search2();
         Set_Seat_Colors();
-        SelectedTo = destination.getSelectedItem().toString();
-//        System.out.println(SelectedTo);
+        getInputs();
+//        selectedTo = toComboBox.getSelectedItem().toString();
+//        System.out.println(selectedTo);
 
-        if (SelectedTo.compareTo("Select") == 0) {
-            destination_label.setText("");
+        if (selectedTo.compareTo("Select") == 0) {
+            toLabel.setText("");
         } else
-            destination_label.setText(SelectedTo);
-    }//GEN-LAST:event_destinationActionPerformed
+            toLabel.setText(selectedTo);
+    }//GEN-LAST:event_toComboBoxActionPerformed
 
     private void A1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_A1ActionPerformed
 
         if (Check_Fields() == true) {
-            if (A1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 2);
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (A1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (A1.getBackground() == yellow) {
                 A1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 A1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "A1 ";
             }
         }
@@ -1471,33 +1504,33 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void jDateChooser2PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jDateChooser2PropertyChange
         // TODO add your handling code here:
         if ("date".equals(evt.getPropertyName())) {
-            Date date = jDateChooser1.getDateEditor().getDate();
+            Date date = dateComboBox.getDateEditor().getDate();
             SimpleDateFormat sf = new SimpleDateFormat("dd/MM/yyyy");
             String mydate = sf.format(date);
-            dateee.setText(mydate);
+            dateLabel.setText(mydate);
         } else {
-            dateee.setText(null);
+            dateLabel.setText(null);
         }
     }//GEN-LAST:event_jDateChooser2PropertyChange
 
     private void A2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_A2ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (A2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (A2.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (A2.getBackground() == yellow) {
                 A2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 A2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "A2 ";
             }
         }
@@ -1507,21 +1540,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void A3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_A3ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (A3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (A3.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (A3.getBackground() == yellow) {
                 A3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 A3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "A3 ";
             }
         }
@@ -1530,21 +1563,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void A4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_A4ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (A4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (A4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (A4.getBackground() == yellow) {
                 A4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 A4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "A4 ";
             }
         }
@@ -1553,21 +1586,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void B1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_B1ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (B1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (B1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (B1.getBackground() == yellow) {
                 B1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 B1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "B1 ";
             }
         }
@@ -1576,21 +1609,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void B2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_B2ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (B2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (B2.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (B2.getBackground() == yellow) {
                 B2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 B2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "B2 ";
             }
         }
@@ -1599,21 +1632,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void B3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_B3ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (B3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (B3.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (B3.getBackground() == yellow) {
                 B3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 B3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "B3 ";
             }
         }
@@ -1622,21 +1655,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void B4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_B4ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (B4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (B4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (B4.getBackground() == yellow) {
                 B4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 B4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "B4 ";
             }
         }
@@ -1645,21 +1678,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void C1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_C1ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (C1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (C1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (C1.getBackground() == yellow) {
                 C1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 C1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "C1 ";
             }
         }
@@ -1667,21 +1700,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void C2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_C2ActionPerformed
         if (Check_Fields() == true) {
-            if (C2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (C2.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (C2.getBackground() == yellow) {
                 C2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 C2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "C2 ";
             }
         }
@@ -1690,21 +1723,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void C3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_C3ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (C3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (C3.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (C3.getBackground() == yellow) {
                 C3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 C3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "C3 ";
             }
         }
@@ -1713,21 +1746,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void C4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_C4ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (C4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (C4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (C4.getBackground() == yellow) {
                 C4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 C4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "C4 ";
             }
         }
@@ -1742,21 +1775,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void D1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_D1ActionPerformed
         if (Check_Fields() == true) {
-            if (D1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (D1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (D1.getBackground() == yellow) {
                 D1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 D1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "D1 ";
             }
         }
@@ -1764,21 +1797,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void D2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_D2ActionPerformed
         if (Check_Fields() == true) {
-            if (D2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (D2.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (D2.getBackground() == yellow) {
                 D2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 D2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "D2 ";
             }
         }
@@ -1786,21 +1819,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void D3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_D3ActionPerformed
         if (Check_Fields() == true) {
-            if (D3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (D3.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (D3.getBackground() == yellow) {
                 D3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 D3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "D3 ";
             }
         }
@@ -1808,21 +1841,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void D4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_D4ActionPerformed
         if (Check_Fields() == true) {
-            if (D4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (D4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (D4.getBackground() == yellow) {
                 D4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 D4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "D4 ";
             }
         }
@@ -1830,21 +1863,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void E1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_E1ActionPerformed
         if (Check_Fields() == true) {
-            if (E1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (E1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (E1.getBackground() == yellow) {
                 E1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 E1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "E1 ";
             }
         }
@@ -1852,21 +1885,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void E2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_E2ActionPerformed
         if (Check_Fields() == true) {
-            if (E2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (E2.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (E2.getBackground() == yellow) {
                 E2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 E2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "E2 ";
             }
         }
@@ -1875,21 +1908,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void E3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_E3ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (E3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (E3.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (E3.getBackground() == yellow) {
                 E3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 E3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "E3 ";
             }
         }
@@ -1898,21 +1931,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void E4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_E4ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (E4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (E4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (E4.getBackground() == yellow) {
                 E4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 E4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "E4 ";
             }
         }
@@ -1921,13 +1954,15 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void F1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_F1ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (F1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (F1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (F1.getBackground() == yellow) {
                 F1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
             } else if (Nseat == 4) {
                 JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -1935,7 +1970,7 @@ public final class TicketBooking extends javax.swing.JFrame {
                 F1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "F1 ";
             }
         }
@@ -1944,21 +1979,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void F2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_F2ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (F2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (F2.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (F2.getBackground() == yellow) {
                 F2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 F2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "F2 ";
             }
         }
@@ -1967,21 +2002,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void F3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_F3ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (F3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (F3.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (F3.getBackground() == yellow) {
                 F3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 F3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "F3 ";
             }
         }
@@ -1990,21 +2025,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void F4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_F4ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (F4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (F4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (F4.getBackground() == yellow) {
                 F4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 F4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "F4 ";
             }
         }
@@ -2013,21 +2048,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void G1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_G1ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (G1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (G1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (G1.getBackground() == yellow) {
                 G1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 G1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "G1 ";
             }
         }
@@ -2036,21 +2071,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void G2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_G2ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (G2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (G2.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (G2.getBackground() == yellow) {
                 G2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 G2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "G2 ";
             }
         }
@@ -2059,21 +2094,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void G3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_G3ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (G3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (G3.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (G3.getBackground() == yellow) {
                 G3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 G3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "G3 ";
             }
         }
@@ -2082,21 +2117,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void G4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_G4ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (G4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (G4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (G4.getBackground() == yellow) {
                 G4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 G4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "G4 ";
             }
         }
@@ -2105,21 +2140,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void H1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_H1ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (H1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (H1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (H1.getBackground() == yellow) {
                 H1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 H1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "H1 ";
             }
         }
@@ -2128,21 +2163,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void H2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_H2ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (H2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (H2.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (H2.getBackground() == yellow) {
                 H2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 H2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "H2 ";
             }
         }
@@ -2151,21 +2186,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void H3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_H3ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (H3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (H3.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (H3.getBackground() == yellow) {
                 H3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 H3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "H3 ";
             }
         }
@@ -2173,21 +2208,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void H4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_H4ActionPerformed
         if (Check_Fields() == true) {
-            if (H4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (H4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (H4.getBackground() == yellow) {
                 H4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 H4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "H4 ";
             }
         }
@@ -2196,21 +2231,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void I1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_I1ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (I1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (I1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (I1.getBackground() == yellow) {
                 I1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 I1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "I1 ";
             }
         }
@@ -2218,21 +2253,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void I2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_I2ActionPerformed
         if (Check_Fields() == true) {
-            if (I2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (I2.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (I2.getBackground() == yellow) {
                 I2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 I2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "I2 ";
             }
         }
@@ -2240,21 +2275,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void I3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_I3ActionPerformed
         if (Check_Fields() == true) {
-            if (I3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (I3.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (I3.getBackground() == yellow) {
                 I3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 I3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "I3 ";
             }
         }
@@ -2263,21 +2298,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void I4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_I4ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (I4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (I4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (I4.getBackground() == yellow) {
                 I4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 I4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "I4 ";
             }
         }
@@ -2286,21 +2321,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void J1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_J1ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (J1.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (J1.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (J1.getBackground() == yellow) {
                 J1.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 J1.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "J1 ";
             }
         }
@@ -2310,12 +2345,12 @@ public final class TicketBooking extends javax.swing.JFrame {
         // TODO add your handling code here:
         if (Check_Fields() == true) {
             if (J2.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (J2.getBackground() == yellow) {
                 J2.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
             } else if (Nseat == 4) {
                 JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -2323,7 +2358,7 @@ public final class TicketBooking extends javax.swing.JFrame {
                 J2.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "J2 ";
             }
         }
@@ -2333,12 +2368,12 @@ public final class TicketBooking extends javax.swing.JFrame {
         // TODO add your handling code here:
         if (Check_Fields() == true) {
             if (J3.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (J3.getBackground() == yellow) {
                 J3.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
             } else if (Nseat == 4) {
                 JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
@@ -2346,7 +2381,7 @@ public final class TicketBooking extends javax.swing.JFrame {
                 J3.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "J3 ";
             }
         }
@@ -2355,21 +2390,21 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void J4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_J4ActionPerformed
         // TODO add your handling code here:
         if (Check_Fields() == true) {
-            if (J4.getBackground() == red) {
-                JOptionPane.showMessageDialog(rootPane, "Seat Booked");
+            if (Nseat == 4) {
+                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
+            } else if (J4.getBackground() == red) {
+                JOptionPane.showMessageDialog(rootPane, "Seat is already Booked!", "Error", 0);
             } else if (J4.getBackground() == yellow) {
                 J4.setBackground(Color.green);
                 Nseat--;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat = " ";
-            } else if (Nseat == 4) {
-                JOptionPane.showMessageDialog(rootPane, "You can't buy more than 4 Tickets");
             } else {
                 J4.setBackground(Color.yellow);
                 Nseat++;
                 String seat = Nseat.toString();
-                nseat_field.setText(seat);
+                nseatTF.setText(seat);
                 selectedSeat += "J4 ";
             }
         }
@@ -2377,23 +2412,23 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void BookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BookActionPerformed
         try {
-            if (nseat_field.getText().isEmpty()) {
+            if (nseatTF.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(rootPane, "Select your seat first");
             } else {
 //            String selectd = (String) jComboBox2.getSelectedItem();
-                int ind = bus_name.getSelectedIndex();
-                BUS_NAME = bus_name.getSelectedItem().toString();
+                int ind = busnameComboBox.getSelectedIndex();
+                BUS_NAME = busnameComboBox.getSelectedItem().toString();
 
-                String table_name = SelectedFrom + "_" + SelectedTo;
+                String table_name = selectedFrom + "_" + selectedTo;
                 String query = "";
 //            jLabel11.setText(String.valueOf(ar.get(ind-1).FARE));
-                total_price.setText(String.valueOf(Nseat * ar.get(ind - 1).FARE));
+                totalPriceLabel.setText(String.valueOf(Nseat * ar.get(ind - 1).FARE));
                 ok = true;
                 if (A1.getBackground() == yellow) {
                     A1.setBackground(Color.red);
                     query = "UPDATE " + table_name + " SET A1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
-                    System.out.println(query);
+//                    System.out.println(query);
                 }
                 if (A2.getBackground() == yellow) {
                     A2.setBackground(Color.red);
@@ -2602,16 +2637,16 @@ public final class TicketBooking extends javax.swing.JFrame {
             return;
         }
         Nseat = 0;
-        source.setSelectedIndex(0);
-        destination.setSelectedIndex(0);
-        source_label.setText("");
-        destination_label.setText("");
-        dateee.setText("");
-        name_field.setText("");
-        contact_field.setText("");
-        nseat_field.setText("");
-        ticket_price.setText("");
-        total_price.setText("");
+        fromComboBox.setSelectedIndex(0);
+        toComboBox.setSelectedIndex(0);
+        fromLabel.setText("");
+        toLabel.setText("");
+        dateLabel.setText("");
+        nameTF.setText("");
+        contactTF.setText("");
+        nseatTF.setText("");
+        ticketPriceLabel.setText("");
+        totalPriceLabel.setText("");
         selectedSeat = " ";
 //        Clearing Table
         DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
@@ -2620,7 +2655,7 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         //Clearing Date
         try {
-            jDateChooser1.setCalendar(null);
+            dateComboBox.setCalendar(null);
         } catch (Exception e) {
         }
 
@@ -2751,9 +2786,9 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     }//GEN-LAST:event_paysubmit_buttonActionPerformed
 
-    private void dateeeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dateeeActionPerformed
+    private void dateLabelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dateLabelActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_dateeeActionPerformed
+    }//GEN-LAST:event_dateLabelActionPerformed
 
     private void jButton47ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton47ActionPerformed
         Complain_Box_User cbu = new Complain_Box_User(USERID);
@@ -2764,12 +2799,12 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void SearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchActionPerformed
         // TODO add your handling code here:
         if (!ok) {
-            SelectedFrom = ((String) source.getSelectedItem()).toLowerCase();
-            SelectedTo = ((String) destination.getSelectedItem()).toLowerCase();
+            selectedFrom = ((String) fromComboBox.getSelectedItem()).toLowerCase();
+            selectedTo = ((String) toComboBox.getSelectedItem()).toLowerCase();
 
             try {
-                if (Route_Exists(SelectedFrom, SelectedTo) == true) {
-                    String query = "SELECT * FROM " + SelectedFrom + "_" + SelectedTo + ";";
+                if (Route_Exists(selectedFrom, selectedTo) == true) {
+                    String query = "SELECT * FROM " + selectedFrom + "_" + selectedTo + ";";
                     Class.forName("com.mysql.cj.jdbc.Driver");
                     Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
                     Statement st = (Statement) con.createStatement();
@@ -2790,9 +2825,9 @@ public final class TicketBooking extends javax.swing.JFrame {
                     dm.getDataVector().removeAllElements();
                     dm.fireTableDataChanged();
 
-                    bus_name.removeAllItems();
-                    bus_name.addItem("Select");
-                    bus_name.setSelectedIndex(0);
+                    busnameComboBox.removeAllItems();
+                    busnameComboBox.addItem("Select");
+                    busnameComboBox.setSelectedIndex(0);
                 }
 
             } catch (ClassNotFoundException | SQLException ex) {
@@ -2802,20 +2837,21 @@ public final class TicketBooking extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_SearchActionPerformed
 
-    private void bus_nameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bus_nameActionPerformed
+    private void busnameComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_busnameComboBoxActionPerformed
         // TODO add your handling code here:
 
-        int ind = bus_name.getSelectedIndex();
-        BUS_NAME = (String) bus_name.getSelectedItem();
+        int ind = busnameComboBox.getSelectedIndex();
+        getInputs();
+//        BUS_NAME = (String) busnameComboBox.getSelectedItem();
 
         Set_Seat_Colors();
 
 //        System.out.println(BUS_NAME);
         if (ind > 0) {
-            ticket_price.setText(String.valueOf(ar.get(ind - 1).FARE));
+            ticketPriceLabel.setText(String.valueOf(ar.get(ind - 1).FARE));
         }
 
-    }//GEN-LAST:event_bus_nameActionPerformed
+    }//GEN-LAST:event_busnameComboBoxActionPerformed
 
     private void jButton46ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton46ActionPerformed
         // TODO add your handling code here:
@@ -2824,42 +2860,42 @@ public final class TicketBooking extends javax.swing.JFrame {
         dispose();
     }//GEN-LAST:event_jButton46ActionPerformed
 
-    private void jDateChooser1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jDateChooser1PropertyChange
+    private void dateComboBoxPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateComboBoxPropertyChange
         // TODO add your handling code here:
-        String selectdate = ((JTextField) jDateChooser1.getDateEditor().getUiComponent()).getText();
-        dateee.setText(selectdate);
-    }//GEN-LAST:event_jDateChooser1PropertyChange
+        selectedDate = ((JTextField) dateComboBox.getDateEditor().getUiComponent()).getText();
+        dateLabel.setText(selectedDate);
+    }//GEN-LAST:event_dateComboBoxPropertyChange
 
-    private void bus_nameItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bus_nameItemStateChanged
+    private void busnameComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_busnameComboBoxItemStateChanged
         // TODO add your handling code here:
         Set_Seat_Colors();
 
-    }//GEN-LAST:event_bus_nameItemStateChanged
+    }//GEN-LAST:event_busnameComboBoxItemStateChanged
 
-    private void sourceItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_sourceItemStateChanged
+    private void fromComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fromComboBoxItemStateChanged
         // TODO add your handling code here:
 //        Set_Seat_Colors();
-    }//GEN-LAST:event_sourceItemStateChanged
+    }//GEN-LAST:event_fromComboBoxItemStateChanged
 
-    private void destinationItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_destinationItemStateChanged
+    private void toComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_toComboBoxItemStateChanged
         // TODO add your handling code here:
 //        Set_Seat_Colors();
-    }//GEN-LAST:event_destinationItemStateChanged
+    }//GEN-LAST:event_toComboBoxItemStateChanged
 
-    private void bus_nameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bus_nameMouseClicked
+    private void busnameComboBoxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_busnameComboBoxMouseClicked
         // TODO add your handling code here:
 //        Set_Seat_Colors();
-    }//GEN-LAST:event_bus_nameMouseClicked
+    }//GEN-LAST:event_busnameComboBoxMouseClicked
 
-    private void sourceMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sourceMouseClicked
+    private void fromComboBoxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fromComboBoxMouseClicked
         // TODO add your handling code here:
 //        Set_Seat_Colors();
-    }//GEN-LAST:event_sourceMouseClicked
+    }//GEN-LAST:event_fromComboBoxMouseClicked
 
-    private void destinationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_destinationMouseClicked
+    private void toComboBoxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_toComboBoxMouseClicked
         // TODO add your handling code here:
 //        Set_Seat_Colors();
-    }//GEN-LAST:event_destinationMouseClicked
+    }//GEN-LAST:event_toComboBoxMouseClicked
 
     /**
      * @param args the command line arguments
@@ -2941,17 +2977,17 @@ public final class TicketBooking extends javax.swing.JFrame {
     private javax.swing.JButton Search;
     private javax.swing.JLabel SeatB;
     private javax.swing.JLabel Steer;
-    private javax.swing.JComboBox<String> bus_name;
-    private javax.swing.JTextField contact_field;
-    private javax.swing.JTextField dateee;
-    private javax.swing.JComboBox<String> destination;
-    private javax.swing.JLabel destination_label;
+    private javax.swing.JComboBox<String> busnameComboBox;
+    private javax.swing.JTextField contactTF;
+    private com.toedter.calendar.JDateChooser dateComboBox;
+    private javax.swing.JTextField dateLabel;
+    private javax.swing.JComboBox<String> fromComboBox;
+    private javax.swing.JLabel fromLabel;
     private javax.swing.JButton jButton41;
     private javax.swing.JButton jButton42;
     private javax.swing.JButton jButton45;
     private javax.swing.JButton jButton46;
     private javax.swing.JButton jButton47;
-    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -2971,12 +3007,12 @@ public final class TicketBooking extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField name_field;
-    private javax.swing.JTextField nseat_field;
+    private javax.swing.JTextField nameTF;
+    private javax.swing.JTextField nseatTF;
     private javax.swing.JButton paysubmit_button;
-    private javax.swing.JComboBox<String> source;
-    private javax.swing.JLabel source_label;
-    private javax.swing.JLabel ticket_price;
-    private javax.swing.JLabel total_price;
+    private javax.swing.JLabel ticketPriceLabel;
+    private javax.swing.JComboBox<String> toComboBox;
+    private javax.swing.JLabel toLabel;
+    private javax.swing.JLabel totalPriceLabel;
     // End of variables declaration//GEN-END:variables
 }

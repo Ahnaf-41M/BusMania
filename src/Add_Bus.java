@@ -171,7 +171,6 @@ public class Add_Bus extends javax.swing.JFrame {
                     + "VALUES ('" + BUS_NAME + "'," + Integer.valueOf(TICKET_FARE)
                     + ",'" + ARRIVAL_TIME + "','" + DEPT_TIME + "','" + tommorrow + "');";
 
-            System.out.println(query);
             stmt.executeUpdate(query);
 
             for (String sname : seat_list) {
@@ -249,7 +248,7 @@ public class Add_Bus extends javax.swing.JFrame {
                     Add_Values_to_Route(BUS_NAME, FROM, TO, TICKET_FARE, ARRIVAL_TIME, DEPT_TIME);
 
                 } else {
-                    JOptionPane.showMessageDialog(rootPane, "Bus name already exist!", "Error", 2);
+                    JOptionPane.showMessageDialog(rootPane, "Bus already exist!", "Error", 2);
                 }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(rootPane, ex, "Error", 2);

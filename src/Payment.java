@@ -13,7 +13,9 @@ public final class Payment extends javax.swing.JFrame {
     String url = "jdbc:mysql://localhost:3306/busmania";
     String username = "root";
     String pass = "123456";
-    int Nseat;
+    Connection con;
+    Statement stmt;
+    int Nseat = 0, prevSeats = 0;
     String total, name, contact, from, to, date, atime, dtime, seat, busname, USERID;
 
     public Payment() {
@@ -58,6 +60,33 @@ public final class Payment extends javax.swing.JFrame {
         Show.setText("Great,That's " + total + "/- ");
         ScaleImage1();
         ScaleImage2();
+        Setup_Database_Connection();
+    }
+
+    public void Setup_Database_Connection() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = (Connection) DriverManager.getConnection(url, username, pass); //2
+            stmt = (Statement) con.createStatement();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e, "Database Error!", 0);
+        }
+    }
+
+    public boolean userExists(String USERID, String busname) {
+        boolean ok = false;
+        try {
+            String query = "SELECT * FROM my_booking WHERE user = '" + USERID + "' AND bus = '" + busname + "';";
+            ResultSet rset = stmt.executeQuery(query);
+            if (rset.next()) {
+                ok = true;
+                prevSeats = Integer.valueOf(rset.getString("seatBooked"));
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e, "Database Error!", 0);
+        }
+        return ok;
     }
 
     /**
@@ -155,12 +184,19 @@ public final class Payment extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "Payment Completed !!!");
             try {
                 String ss = String.valueOf(Nseat);
-                String query = "INSERT INTO My_booking VALUES('" + busname + "','" + ss + "','" + date + "','" + from + "','" + to + "','" + dtime + "','" + atime + "','" + USERID + "');";
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
-                Statement st = (Statement) con.createStatement();
-                st.executeUpdate(query);
-            } catch (ClassNotFoundException | SQLException ex) {
+                String query = "";
+
+                if (userExists(USERID, busname) == true) {
+                    Nseat += prevSeats;
+                    ss = String.valueOf(Nseat);
+                    query = "UPDATE my_booking SET seatBooked = '"+ss+"' FWHERE user = '"+USERID+"';";
+                } else {
+                    query = "INSERT INTO my_booking VALUES('" + busname + "','" + ss + "','" + date + "','" + from + "','"
+                            + to + "','" + dtime + "','" + atime + "','" + USERID + "');";
+                }
+                stmt.executeUpdate(query);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(rootPane, ex, "Database Error!", 0);
                 Logger.getLogger(Complain_Box_User.class.getName()).log(Level.SEVERE, null, ex);
             }
             setVisible(false);
