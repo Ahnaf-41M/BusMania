@@ -826,13 +826,13 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel6.setText("NAME :");
-        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 30, 50, 20));
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 70, 50, 20));
 
         name_field.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
-        getContentPane().add(name_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 30, 160, 30));
+        getContentPane().add(name_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 70, 160, 30));
 
         contact_field.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
-        getContentPane().add(contact_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 30, 140, 30));
+        getContentPane().add(contact_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 110, 160, 30));
 
         A1.setBackground(new java.awt.Color(0, 255, 0));
         A1.setFont(new java.awt.Font("Segoe UI Symbol", 0, 12)); // NOI18N
@@ -1234,47 +1234,47 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel7.setText("CONTACT :");
-        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 30, 70, 20));
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 110, 70, 20));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel8.setText("FROM :");
-        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 70, 50, 20));
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 30, 50, 20));
 
         source_label.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        getContentPane().add(source_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 70, 120, 20));
+        getContentPane().add(source_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 30, 110, 20));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("TO :");
-        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 70, 30, 20));
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 60, 30, 20));
 
         destination_label.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        getContentPane().add(destination_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 70, 130, 20));
+        getContentPane().add(destination_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 60, 110, 20));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("BUSNAME :");
-        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 100, 70, 20));
+        getContentPane().add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 30, 70, 20));
 
         jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         getContentPane().add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 120, -1, -1));
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel15.setText("DATE :");
-        getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 100, 40, 20));
+        getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 90, 40, 20));
 
         total_price.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
-        getContentPane().add(total_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 160, 120, 20));
+        getContentPane().add(total_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 160, 100, 20));
 
         jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel17.setText("NO OF SEATS:");
-        getContentPane().add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 130, 80, 20));
+        getContentPane().add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 150, 80, 20));
 
         jLabel19.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel19.setText("TOTAL PRICE :");
-        getContentPane().add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 160, 90, 20));
+        getContentPane().add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 160, 90, 20));
 
         nseat_field.setEditable(false);
         nseat_field.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
-        getContentPane().add(nseat_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 130, 160, 30));
+        getContentPane().add(nseat_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 150, 160, 30));
 
         dateee.setEditable(false);
         dateee.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
@@ -1283,7 +1283,7 @@ public final class TicketBooking extends javax.swing.JFrame {
                 dateeeActionPerformed(evt);
             }
         });
-        getContentPane().add(dateee, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 100, 140, 30));
+        getContentPane().add(dateee, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 90, 100, 30));
 
         Reset.setBackground(new java.awt.Color(0, 0, 0));
         Reset.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -1298,10 +1298,10 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel9.setText("PRICE :");
-        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 170, 40, 20));
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 130, 40, 20));
 
         ticket_price.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
-        getContentPane().add(ticket_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 170, 80, 20));
+        getContentPane().add(ticket_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 130, 90, 20));
 
         Book.setBackground(new java.awt.Color(0, 0, 0));
         Book.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -1396,7 +1396,7 @@ public final class TicketBooking extends javax.swing.JFrame {
                 bus_nameActionPerformed(evt);
             }
         });
-        getContentPane().add(bus_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 90, 160, -1));
+        getContentPane().add(bus_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 30, 160, -1));
 
         jLabel16.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         getContentPane().add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, 480, 230));
