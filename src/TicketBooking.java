@@ -82,50 +82,6 @@ public final class TicketBooking extends javax.swing.JFrame {
         Set_Seat_Colors();
     }
 
-    public void Add_Seat_Names() {
-        for (char ch = 'A'; ch <= 'J'; ch++) {
-            for (char i = '1'; i <= '4'; i++) {
-                String sname = String.valueOf(ch) + String.valueOf(i);
-                seat_list.add(sname);
-            }
-        }
-    }
-
-    public void Update_Seats() {
-        try {
-            String query = "SELECT * FROM routes;";
-            ResultSet rset = stmt.executeQuery(query);
-            Connection tmp_con = (Connection) DriverManager.getConnection(url, username, pass); //2
-            Statement tmp_stmt = (Statement) tmp_con.createStatement();
-            while (rset.next()) {
-                String FROM = rset.getString("from_location");
-                String TO = rset.getString("to_location");
-                String table_name = FROM + "_" + TO;
-                query = "SELECT * FROM " + table_name + ";";
-                ResultSet tmp_rset = tmp_stmt.executeQuery(query);
-                String dt = "";
-
-                if (tmp_rset.next()) {
-                    dt = tmp_rset.getString("date");
-                }
-                int is_equal = dt.compareTo(tommorrow);
-
-                if (is_equal != 0) {
-                    query = "UPDATE " + table_name + " SET date = '" + tommorrow + "';";
-                    tmp_stmt.executeUpdate(query);
-//                    System.out.println(query);
-                    for (String sname : seat_list) {
-                        query = "UPDATE " + table_name + " SET " + sname + " = '0';";
-                        tmp_stmt.executeUpdate(query);
-                    }
-                }
-
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, ex, "Database Error!", 0);
-        }
-    }
-
     public void Setup_Database_Connection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -136,6 +92,100 @@ public final class TicketBooking extends javax.swing.JFrame {
         }
     }
 
+    public void Add_Seat_Names() {
+        for (char ch = 'A'; ch <= 'J'; ch++) {
+            for (char i = '1'; i <= '4'; i++) {
+                String sname = String.valueOf(ch) + String.valueOf(i);
+                seat_list.add(sname);
+            }
+        }
+    }
+
+    public void Update_Seats() {
+        if (Check_Fields() == false) {
+            Set_Seats_To_Green();
+        } else {
+            try {
+                String query = "SELECT * FROM routes;";
+                ResultSet rset = stmt.executeQuery(query);
+                Connection tmp_con = (Connection) DriverManager.getConnection(url, username, pass); //2
+                Statement tmp_stmt = (Statement) tmp_con.createStatement();
+                while (rset.next()) {
+                    String FROM = rset.getString("from_location");
+                    String TO = rset.getString("to_location");
+                    String table_name = FROM + "_" + TO;
+                    query = "SELECT * FROM " + table_name + ";";
+
+//                System.out.println(query);
+                    ResultSet tmp_rset = tmp_stmt.executeQuery(query);
+                    String dt = "";
+
+                    if (tmp_rset.next()) {
+                        dt = tmp_rset.getString("date");
+                    }
+                    int is_equal = dt.compareTo(tommorrow);
+
+                    if (is_equal != 0) {
+                        query = "UPDATE " + table_name + " SET date = '" + tommorrow + "';";
+                        tmp_stmt.executeUpdate(query);
+//                    System.out.println(query);
+                        for (String sname : seat_list) {
+                            query = "UPDATE " + table_name + " SET " + sname + " = '0';";
+                            tmp_stmt.executeUpdate(query);
+//                        System.out.println(query);
+                        }
+                    }
+
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, ex, "Database Error!", 0);
+            }
+        }
+    }
+
+    public void Set_Seats_To_Green() {
+        A1.setBackground(Color.green);
+        A2.setBackground(Color.green);
+        A3.setBackground(Color.green);
+        A4.setBackground(Color.green);
+        B1.setBackground(Color.green);
+        B2.setBackground(Color.green);
+        B3.setBackground(Color.green);
+        B4.setBackground(Color.green);
+        C1.setBackground(Color.green);
+        C2.setBackground(Color.green);
+        C3.setBackground(Color.green);
+        C4.setBackground(Color.green);
+        D1.setBackground(Color.green);
+        D2.setBackground(Color.green);
+        D3.setBackground(Color.green);
+        D4.setBackground(Color.green);
+        E1.setBackground(Color.green);
+        E2.setBackground(Color.green);
+        E3.setBackground(Color.green);
+        E4.setBackground(Color.green);
+        F1.setBackground(Color.green);
+        F2.setBackground(Color.green);
+        F3.setBackground(Color.green);
+        F4.setBackground(Color.green);
+        G1.setBackground(Color.green);
+        G2.setBackground(Color.green);
+        G3.setBackground(Color.green);
+        G4.setBackground(Color.green);
+        H1.setBackground(Color.green);
+        H2.setBackground(Color.green);
+        H3.setBackground(Color.green);
+        H4.setBackground(Color.green);
+        I1.setBackground(Color.green);
+        I2.setBackground(Color.green);
+        I3.setBackground(Color.green);
+        I4.setBackground(Color.green);
+        J1.setBackground(Color.green);
+        J2.setBackground(Color.green);
+        J3.setBackground(Color.green);
+        J4.setBackground(Color.green);
+    }
+
     public void Set_Seat_Colors() {
         try {
             String BUS_NAME = bus_name.getSelectedItem().toString();
@@ -143,6 +193,10 @@ public final class TicketBooking extends javax.swing.JFrame {
             String TO = destination.getSelectedItem().toString();
             String table_name = FROM + "_" + TO;
             String query = "SELECT * FROM " + table_name + " WHERE bus_name = " + BUS_NAME + ";";
+
+            if (BUS_NAME.compareTo("Select") == 0) {
+                Set_Seats_To_Green();
+            }
 
             Connection tmp_con = (Connection) DriverManager.getConnection(url, username, pass); //2
             Statement tmp_stmt = (Statement) tmp_con.createStatement();
@@ -2214,137 +2268,223 @@ public final class TicketBooking extends javax.swing.JFrame {
     }//GEN-LAST:event_J4ActionPerformed
 
     private void BookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BookActionPerformed
-        if (nseat_field.getText().isEmpty())
-            JOptionPane.showMessageDialog(rootPane, "Select your seat first");
-        else {
+        try {
+            if (nseat_field.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(rootPane, "Select your seat first");
+            } else {
 //            String selectd = (String) jComboBox2.getSelectedItem();
-            int ind = bus_name.getSelectedIndex();
-          
-            String table_name= SelectedFrom+"_"+SelectedTo;
-            String query = "UPDATE "+table_name;
+                int ind = bus_name.getSelectedIndex();
+                busname = bus_name.getSelectedItem().toString();
+
+                String table_name = SelectedFrom + "_" + SelectedTo;
+                String query = "";
 //            jLabel11.setText(String.valueOf(ar.get(ind-1).FARE));
-            total_price.setText(String.valueOf(Nseat * ar.get(ind - 1).FARE));
-            ok = true;
-            if (A1.getBackground() == yellow) {
-                A1.setBackground(Color.red);
+                total_price.setText(String.valueOf(Nseat * ar.get(ind - 1).FARE));
+                ok = true;
+                if (A1.getBackground() == yellow) {
+                    A1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET A1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                    System.out.println(query);
+                }
+                if (A2.getBackground() == yellow) {
+                    A2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET A2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (A3.getBackground() == yellow) {
+                    A3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET A3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (A4.getBackground() == yellow) {
+                    A4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET A4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (B1.getBackground() == yellow) {
+                    B1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET B1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (B2.getBackground() == yellow) {
+                    B2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET B2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (B3.getBackground() == yellow) {
+                    B3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET B3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (B4.getBackground() == yellow) {
+                    B4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET B4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (C1.getBackground() == yellow) {
+                    C1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET C1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (C2.getBackground() == yellow) {
+                    C2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET C2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (C3.getBackground() == yellow) {
+                    C3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET C3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (C4.getBackground() == yellow) {
+                    C4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET C4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (D1.getBackground() == yellow) {
+                    D1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET D1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (D2.getBackground() == yellow) {
+                    D2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET D2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (D3.getBackground() == yellow) {
+                    D3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET D3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (D4.getBackground() == yellow) {
+                    D4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET D4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (E1.getBackground() == yellow) {
+                    E1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET E1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (E2.getBackground() == yellow) {
+                    E2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET E2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (E3.getBackground() == yellow) {
+                    E3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET E3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (E4.getBackground() == yellow) {
+                    E4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET E4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (F1.getBackground() == yellow) {
+                    F1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET F1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (F2.getBackground() == yellow) {
+                    F2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET F2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (F3.getBackground() == yellow) {
+                    F3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET F3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (F4.getBackground() == yellow) {
+                    F4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET F4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (G1.getBackground() == yellow) {
+                    G1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET G1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (G2.getBackground() == yellow) {
+                    G2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET G2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (G3.getBackground() == yellow) {
+                    G3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET G3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (G4.getBackground() == yellow) {
+                    G4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET G4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (H1.getBackground() == yellow) {
+                    H1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET H1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (H2.getBackground() == yellow) {
+                    H2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET H2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (H3.getBackground() == yellow) {
+                    H3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET H3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (H4.getBackground() == yellow) {
+                    H4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET H4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (I1.getBackground() == yellow) {
+                    I1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET I1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (I2.getBackground() == yellow) {
+                    I2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET I2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (I3.getBackground() == yellow) {
+                    I3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET I3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (I4.getBackground() == yellow) {
+                    I4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET I4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (J1.getBackground() == yellow) {
+                    J1.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET J1 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (J2.getBackground() == yellow) {
+                    J2.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET J2 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (J3.getBackground() == yellow) {
+                    J3.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET J3 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
+                if (J4.getBackground() == yellow) {
+                    J4.setBackground(Color.red);
+                    query = "UPDATE " + table_name + " SET J4 = '1' WHERE bus_name = '" + busname + "';";
+                    stmt.executeUpdate(query);
+                }
             }
-            if (A2.getBackground() == yellow) {
-                A2.setBackground(Color.red);
-            }
-            if (A3.getBackground() == yellow) {
-                A3.setBackground(Color.red);
-            }
-            if (A4.getBackground() == yellow) {
-                A4.setBackground(Color.red);
-            }
-            if (B1.getBackground() == yellow) {
-                B1.setBackground(Color.red);
-            }
-            if (B2.getBackground() == yellow) {
-                B2.setBackground(Color.red);
-            }
-            if (B3.getBackground() == yellow) {
-                B3.setBackground(Color.red);
-            }
-            if (B4.getBackground() == yellow) {
-                B4.setBackground(Color.red);
-            }
-            if (C1.getBackground() == yellow) {
-                C1.setBackground(Color.red);
-            }
-            if (C2.getBackground() == yellow) {
-                C2.setBackground(Color.red);
-            }
-            if (C3.getBackground() == yellow) {
-                C3.setBackground(Color.red);
-            }
-            if (C4.getBackground() == yellow) {
-                C4.setBackground(Color.red);
-            }
-            if (D1.getBackground() == yellow) {
-                D1.setBackground(Color.red);
-            }
-            if (D2.getBackground() == yellow) {
-                D2.setBackground(Color.red);
-            }
-            if (D3.getBackground() == yellow) {
-                D3.setBackground(Color.red);
-            }
-            if (D4.getBackground() == yellow) {
-                D4.setBackground(Color.red);
-            }
-            if (E1.getBackground() == yellow) {
-                E1.setBackground(Color.red);
-            }
-            if (E2.getBackground() == yellow) {
-                E2.setBackground(Color.red);
-            }
-            if (E3.getBackground() == yellow) {
-                E3.setBackground(Color.red);
-            }
-            if (E4.getBackground() == yellow) {
-                E4.setBackground(Color.red);
-            }
-            if (F1.getBackground() == yellow) {
-                F1.setBackground(Color.red);
-            }
-            if (F2.getBackground() == yellow) {
-                F2.setBackground(Color.red);
-            }
-            if (F3.getBackground() == yellow) {
-                F3.setBackground(Color.red);
-            }
-            if (F4.getBackground() == yellow) {
-                F4.setBackground(Color.red);
-            }
-            if (G1.getBackground() == yellow) {
-                G1.setBackground(Color.red);
-            }
-            if (G2.getBackground() == yellow) {
-                G2.setBackground(Color.red);
-            }
-            if (G3.getBackground() == yellow) {
-                G3.setBackground(Color.red);
-            }
-            if (G4.getBackground() == yellow) {
-                G4.setBackground(Color.red);
-            }
-            if (H1.getBackground() == yellow) {
-                H1.setBackground(Color.red);
-            }
-            if (H2.getBackground() == yellow) {
-                H2.setBackground(Color.red);
-            }
-            if (H3.getBackground() == yellow) {
-                H3.setBackground(Color.red);
-            }
-            if (H4.getBackground() == yellow) {
-                H4.setBackground(Color.red);
-            }
-            if (I1.getBackground() == yellow) {
-                I1.setBackground(Color.red);
-            }
-            if (I2.getBackground() == yellow) {
-                I2.setBackground(Color.red);
-            }
-            if (I3.getBackground() == yellow) {
-                I3.setBackground(Color.red);
-            }
-            if (I4.getBackground() == yellow) {
-                I4.setBackground(Color.red);
-            }
-            if (J1.getBackground() == yellow) {
-                J1.setBackground(Color.red);
-            }
-            if (J2.getBackground() == yellow) {
-                J2.setBackground(Color.red);
-            }
-            if (J3.getBackground() == yellow) {
-                J3.setBackground(Color.red);
-            }
-            if (J4.getBackground() == yellow) {
-                J4.setBackground(Color.red);
-            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(rootPane, ex, "Error", 2);
         }
     }//GEN-LAST:event_BookActionPerformed
 
@@ -2551,8 +2691,15 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void bus_nameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bus_nameActionPerformed
         // TODO add your handling code here:
+
         int ind = bus_name.getSelectedIndex();
         String selectd = (String) bus_name.getSelectedItem();
+        
+        if (Check_Fields() == false) {
+            Set_Seats_To_Green();
+        } else {
+            Set_Seat_Colors();
+        }
 
         if (ind > 0) {
             ticket_price.setText(String.valueOf(ar.get(ind - 1).FARE));
