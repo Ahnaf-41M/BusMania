@@ -20,6 +20,7 @@ import java.awt.Image;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import static java.sql.Types.NULL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,7 +55,7 @@ public final class TicketBooking extends javax.swing.JFrame {
     Statement stmt;
     Integer Nseat = 0;
     String USERID, atime;
-    String Price, busname, pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat = "";
+    String Price, BUS_NAME = "", pname = "", pcontact = "", SelectedFrom = "", SelectedTo = "", SelectedDate = "", selectedTime = "", selectedSeat = "";
     boolean ok = false;
 
     Date next_day = new Date(new Date().getTime() + 86400000);
@@ -73,13 +74,12 @@ public final class TicketBooking extends javax.swing.JFrame {
         Set_Table_Prop();
         setResizable(false);
 
-        bus_name.removeAllItems();
-        bus_name.addItem("Select");
         setTitle("Ticket Booking");
 
         Add_Seat_Names();
         Update_Seats();
-        Set_Seat_Colors();
+
+        bus_name.setSelectedIndex(0);
     }
 
     public void Setup_Database_Connection() {
@@ -102,45 +102,38 @@ public final class TicketBooking extends javax.swing.JFrame {
     }
 
     public void Update_Seats() {
-        if (Check_Fields() == false) {
-            Set_Seats_To_Green();
-        } else {
-            try {
-                String query = "SELECT * FROM routes;";
-                ResultSet rset = stmt.executeQuery(query);
-                Connection tmp_con = (Connection) DriverManager.getConnection(url, username, pass); //2
-                Statement tmp_stmt = (Statement) tmp_con.createStatement();
-                while (rset.next()) {
-                    String FROM = rset.getString("from_location");
-                    String TO = rset.getString("to_location");
-                    String table_name = FROM + "_" + TO;
-                    query = "SELECT * FROM " + table_name + ";";
+        try {
+            String query = "SELECT * FROM routes;";
+            ResultSet rset = stmt.executeQuery(query);
+            Connection tmp_con = (Connection) DriverManager.getConnection(url, username, pass); //2
+            Statement tmp_stmt = (Statement) tmp_con.createStatement();
+            while (rset.next()) {
+                String FROM = rset.getString("from_location");
+                String TO = rset.getString("to_location");
+                String table_name = FROM + "_" + TO;
+                query = "SELECT * FROM " + table_name + ";";
+                ResultSet tmp_rset = tmp_stmt.executeQuery(query);
+                String dt = "";
 
-//                System.out.println(query);
-                    ResultSet tmp_rset = tmp_stmt.executeQuery(query);
-                    String dt = "";
-
-                    if (tmp_rset.next()) {
-                        dt = tmp_rset.getString("date");
-                    }
-                    int is_equal = dt.compareTo(tommorrow);
-
-                    if (is_equal != 0) {
-                        query = "UPDATE " + table_name + " SET date = '" + tommorrow + "';";
-                        tmp_stmt.executeUpdate(query);
-//                    System.out.println(query);
-                        for (String sname : seat_list) {
-                            query = "UPDATE " + table_name + " SET " + sname + " = '0';";
-                            tmp_stmt.executeUpdate(query);
-//                        System.out.println(query);
-                        }
-                    }
-
+                if (tmp_rset.next()) {
+                    dt = tmp_rset.getString("date");
                 }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, ex, "Database Error!", 0);
+                int is_equal = dt.compareTo(tommorrow);
+
+                if (is_equal != 0) {
+                    query = "UPDATE " + table_name + " SET date = '" + tommorrow + "';";
+                    tmp_stmt.executeUpdate(query);
+                    for (String sname : seat_list) {
+                        query = "UPDATE " + table_name + " SET " + sname + " = '0';";
+                        tmp_stmt.executeUpdate(query);
+                    }
+                }
+
             }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, ex, "Database Error!", 0);
         }
+
     }
 
     public void Set_Seats_To_Green() {
@@ -186,279 +179,363 @@ public final class TicketBooking extends javax.swing.JFrame {
         J4.setBackground(Color.green);
     }
 
-    public void Set_Seat_Colors() {
+    public boolean Route_Exists(String FROM, String TO) {
+        if (FROM == "Select") {
+//            JOptionPane.showMessageDialog(null, "Invalid 'from' location!", "Error", 2);
+            Set_Seats_To_Green();
+            return false;
+        } else if (TO == "Select") {
+//            JOptionPane.showMessageDialog(null, "Invalid 'to' location!", "Error", 2);
+            Set_Seats_To_Green();
+            return false;
+        } else if (FROM == TO) {
+//            JOptionPane.showMessageDialog(null, "Please select route!", "Error", 2);
+            Set_Seats_To_Green();
+            return false;
+        }
+        boolean ok = false;
         try {
-            String BUS_NAME = bus_name.getSelectedItem().toString();
-            String FROM = source.getSelectedItem().toString();
-            String TO = destination.getSelectedItem().toString();
-            String table_name = FROM + "_" + TO;
-            String query = "SELECT * FROM " + table_name + " WHERE bus_name = " + BUS_NAME + ";";
-
-            if (BUS_NAME.compareTo("Select") == 0) {
-                Set_Seats_To_Green();
+            String query = "SELECT * FROM routes WHERE from_location = '" + FROM + "' AND to_location = '" + TO + "';";
+            ResultSet rset = stmt.executeQuery(query);
+            if (rset.next()) {
+                ok = true;
             }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e, "Route Exists!", 0);
+        }
+        return ok;
+    }
 
-            Connection tmp_con = (Connection) DriverManager.getConnection(url, username, pass); //2
-            Statement tmp_stmt = (Statement) tmp_con.createStatement();
+    public void Search2() {
+        if (!ok) {
+            SelectedFrom = ((String) source.getSelectedItem()).toLowerCase();
+            SelectedTo = ((String) destination.getSelectedItem()).toLowerCase();
 
-            ResultSet rset1 = stmt.executeQuery(query);
-            if (rset1.next()) {
-                for (String sname : seat_list) {
-                    String val = rset1.getString(sname);
-                    int ok = 0;
-                    if (val.compareTo("0") == 0) {
-                        ok = 0;
-                    } else {
-                        ok = 1;
+            try {
+                if (Route_Exists(SelectedFrom, SelectedTo) == true) {
+                    String query = "SELECT * FROM " + SelectedFrom + "_" + SelectedTo + ";";
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
+                    Statement st = (Statement) con.createStatement();
+                    ResultSet rs = st.executeQuery(query);
+
+                    ar.clear();
+                    while (rs.next()) {
+                        bus_info obj = new bus_info(rs.getString("bus_name"), rs.getInt("ticket_fare"), rs.getString("arrival_time"), rs.getString("departure_time"));
+                        ar.add(obj);
                     }
+                    showTable();
+                } else {
+                    ar.clear();
+                    //        Clearing Table
+                    DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
+                    dm.getDataVector().removeAllElements();
+                    dm.fireTableDataChanged();
 
-                    if (sname.compareTo("A1") == 0) {
-                        if (ok == 1) {
-                            A1.setBackground(Color.red);
-                        } else {
-                            A1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("A2") == 0) {
-                        if (ok == 1) {
-                            A2.setBackground(Color.red);
-                        } else {
-                            A2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("A3") == 0) {
-                        if (ok == 1) {
-                            A3.setBackground(Color.red);
-                        } else {
-                            A3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("A4") == 0) {
-                        if (ok == 1) {
-                            A4.setBackground(Color.red);
-                        } else {
-                            A4.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("B1") == 0) {
-                        if (ok == 1) {
-                            B1.setBackground(Color.red);
-                        } else {
-                            B1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("B2") == 0) {
-                        if (ok == 1) {
-                            B2.setBackground(Color.red);
-                        } else {
-                            B2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("B3") == 0) {
-                        if (ok == 1) {
-                            B3.setBackground(Color.red);
-                        } else {
-                            B3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("B4") == 0) {
-                        if (ok == 1) {
-                            B4.setBackground(Color.red);
-                        } else {
-                            B4.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("C1") == 0) {
-                        if (ok == 1) {
-                            C1.setBackground(Color.red);
-                        } else {
-                            C1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("C2") == 0) {
-                        if (ok == 1) {
-                            C2.setBackground(Color.red);
-                        } else {
-                            C2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("C3") == 0) {
-                        if (ok == 1) {
-                            C3.setBackground(Color.red);
-                        } else {
-                            C3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("C4") == 0) {
-                        if (ok == 1) {
-                            C4.setBackground(Color.red);
-                        } else {
-                            C4.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("D1") == 0) {
-                        if (ok == 1) {
-                            D1.setBackground(Color.red);
-                        } else {
-                            D1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("D2") == 0) {
-                        if (ok == 1) {
-                            D2.setBackground(Color.red);
-                        } else {
-                            D2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("D3") == 0) {
-                        if (ok == 1) {
-                            D3.setBackground(Color.red);
-                        } else {
-                            D3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("D4") == 0) {
-                        if (ok == 1) {
-                            D4.setBackground(Color.red);
-                        } else {
-                            D4.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("E1") == 0) {
-                        if (ok == 1) {
-                            E1.setBackground(Color.red);
-                        } else {
-                            E1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("E2") == 0) {
-                        if (ok == 1) {
-                            E2.setBackground(Color.red);
-                        } else {
-                            E2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("E3") == 0) {
-                        if (ok == 1) {
-                            E3.setBackground(Color.red);
-                        } else {
-                            E3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("E4") == 0) {
-                        if (ok == 1) {
-                            E4.setBackground(Color.red);
-                        } else {
-                            E4.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("F1") == 0) {
-                        if (ok == 1) {
-                            F1.setBackground(Color.red);
-                        } else {
-                            F1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("F2") == 0) {
-                        if (ok == 1) {
-                            F2.setBackground(Color.red);
-                        } else {
-                            F2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("F3") == 0) {
-                        if (ok == 1) {
-                            F3.setBackground(Color.red);
-                        } else {
-                            F3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("F4") == 0) {
-                        if (ok == 1) {
-                            F4.setBackground(Color.red);
-                        } else {
-                            F4.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("G1") == 0) {
-                        if (ok == 1) {
-                            G1.setBackground(Color.red);
-                        } else {
-                            G1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("G2") == 0) {
-                        if (ok == 1) {
-                            G2.setBackground(Color.red);
-                        } else {
-                            G2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("G3") == 0) {
-                        if (ok == 1) {
-                            G3.setBackground(Color.red);
-                        } else {
-                            G3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("G4") == 0) {
-                        if (ok == 1) {
-                            G4.setBackground(Color.red);
-                        } else {
-                            G4.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("H1") == 0) {
-                        if (ok == 1) {
-                            H1.setBackground(Color.red);
-                        } else {
-                            H1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("H2") == 0) {
-                        if (ok == 1) {
-                            H2.setBackground(Color.red);
-                        } else {
-                            H2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("H3") == 0) {
-                        if (ok == 1) {
-                            H3.setBackground(Color.red);
-                        } else {
-                            H3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("H4") == 0) {
-                        if (ok == 1) {
-                            H4.setBackground(Color.red);
-                        } else {
-                            H4.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("I1") == 0) {
-                        if (ok == 1) {
-                            I1.setBackground(Color.red);
-                        } else {
-                            I1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("I2") == 0) {
-                        if (ok == 1) {
-                            I2.setBackground(Color.red);
-                        } else {
-                            I2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("I3") == 0) {
-                        if (ok == 1) {
-                            I3.setBackground(Color.red);
-                        } else {
-                            I3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("I4") == 0) {
-                        if (ok == 1) {
-                            I4.setBackground(Color.red);
-                        } else {
-                            I4.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("J1") == 0) {
-                        if (ok == 1) {
-                            J1.setBackground(Color.red);
-                        } else {
-                            J1.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("J2") == 0) {
-                        if (ok == 1) {
-                            J2.setBackground(Color.red);
-                        } else {
-                            J2.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("J3") == 0) {
-                        if (ok == 1) {
-                            J3.setBackground(Color.red);
-                        } else {
-                            J3.setBackground(Color.green);
-                        }
-                    } else if (sname.compareTo("J4") == 0) {
-                        if (ok == 1) {
-                            J4.setBackground(Color.red);
-                        } else {
-                            J4.setBackground(Color.green);
-                        }
-                    }
-
+                    bus_name.removeAllItems();
+                    bus_name.addItem("Select");
+                    bus_name.setSelectedIndex(0);
                 }
+
+            } catch (ClassNotFoundException | SQLException ex) {
+                JOptionPane.showMessageDialog(null, ex, "Error", 0);
             }
 
-        } catch (Exception ex) {
+        }
+    }
 
+    public void Set_Seat_Colors() {
+
+        String s = "Select";
+        BUS_NAME = (String) bus_name.getSelectedItem();
+        SelectedFrom = ((String) source.getSelectedItem()).toLowerCase();
+        SelectedTo = ((String) destination.getSelectedItem()).toLowerCase();
+        if (BUS_NAME == null) {
+            BUS_NAME = "Select";
+        }
+
+        if (SelectedFrom.compareTo(s) == 0 || SelectedTo.compareTo(s) == 0
+                || BUS_NAME.compareTo(s) == 0 || SelectedFrom.compareTo(SelectedTo) == 0) {
+            Set_Seats_To_Green();
+        } else {
+            try {
+
+                if (Route_Exists(SelectedFrom, SelectedTo) == true) {
+                    String table_name = SelectedFrom + "_" + SelectedTo;
+                    String query = "SELECT * FROM " + table_name + " WHERE bus_name = '" + BUS_NAME + "';";
+
+                    ResultSet rset1 = stmt.executeQuery(query);
+
+                    if (rset1.next()) {
+                        for (String sname : seat_list) {
+                            String val = rset1.getString(sname);
+                            int ok = 0;
+                            if (val.compareTo("0") == 0) {
+                                ok = 0;
+                            } else {
+                                ok = 1;
+                            }
+
+                            if (sname.compareTo("A1") == 0) {
+                                if (ok == 1) {
+                                    A1.setBackground(Color.red);
+                                } else {
+                                    A1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("A2") == 0) {
+                                if (ok == 1) {
+                                    A2.setBackground(Color.red);
+                                } else {
+                                    A2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("A3") == 0) {
+                                if (ok == 1) {
+                                    A3.setBackground(Color.red);
+                                } else {
+                                    A3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("A4") == 0) {
+                                if (ok == 1) {
+                                    A4.setBackground(Color.red);
+                                } else {
+                                    A4.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("B1") == 0) {
+                                if (ok == 1) {
+                                    B1.setBackground(Color.red);
+                                } else {
+                                    B1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("B2") == 0) {
+                                if (ok == 1) {
+                                    B2.setBackground(Color.red);
+                                } else {
+                                    B2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("B3") == 0) {
+                                if (ok == 1) {
+                                    B3.setBackground(Color.red);
+                                } else {
+                                    B3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("B4") == 0) {
+                                if (ok == 1) {
+                                    B4.setBackground(Color.red);
+                                } else {
+                                    B4.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("C1") == 0) {
+                                if (ok == 1) {
+                                    C1.setBackground(Color.red);
+                                } else {
+                                    C1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("C2") == 0) {
+                                if (ok == 1) {
+                                    C2.setBackground(Color.red);
+                                } else {
+                                    C2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("C3") == 0) {
+                                if (ok == 1) {
+                                    C3.setBackground(Color.red);
+                                } else {
+                                    C3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("C4") == 0) {
+                                if (ok == 1) {
+                                    C4.setBackground(Color.red);
+                                } else {
+                                    C4.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("D1") == 0) {
+                                if (ok == 1) {
+                                    D1.setBackground(Color.red);
+                                } else {
+                                    D1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("D2") == 0) {
+                                if (ok == 1) {
+                                    D2.setBackground(Color.red);
+                                } else {
+                                    D2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("D3") == 0) {
+                                if (ok == 1) {
+                                    D3.setBackground(Color.red);
+                                } else {
+                                    D3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("D4") == 0) {
+                                if (ok == 1) {
+                                    D4.setBackground(Color.red);
+                                } else {
+                                    D4.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("E1") == 0) {
+                                if (ok == 1) {
+                                    E1.setBackground(Color.red);
+                                } else {
+                                    E1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("E2") == 0) {
+                                if (ok == 1) {
+                                    E2.setBackground(Color.red);
+                                } else {
+                                    E2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("E3") == 0) {
+                                if (ok == 1) {
+                                    E3.setBackground(Color.red);
+                                } else {
+                                    E3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("E4") == 0) {
+                                if (ok == 1) {
+                                    E4.setBackground(Color.red);
+                                } else {
+                                    E4.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("F1") == 0) {
+                                if (ok == 1) {
+                                    F1.setBackground(Color.red);
+                                } else {
+                                    F1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("F2") == 0) {
+                                if (ok == 1) {
+                                    F2.setBackground(Color.red);
+                                } else {
+                                    F2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("F3") == 0) {
+                                if (ok == 1) {
+                                    F3.setBackground(Color.red);
+                                } else {
+                                    F3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("F4") == 0) {
+                                if (ok == 1) {
+                                    F4.setBackground(Color.red);
+                                } else {
+                                    F4.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("G1") == 0) {
+                                if (ok == 1) {
+                                    G1.setBackground(Color.red);
+                                } else {
+                                    G1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("G2") == 0) {
+                                if (ok == 1) {
+                                    G2.setBackground(Color.red);
+                                } else {
+                                    G2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("G3") == 0) {
+                                if (ok == 1) {
+                                    G3.setBackground(Color.red);
+                                } else {
+                                    G3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("G4") == 0) {
+                                if (ok == 1) {
+                                    G4.setBackground(Color.red);
+                                } else {
+                                    G4.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("H1") == 0) {
+                                if (ok == 1) {
+                                    H1.setBackground(Color.red);
+                                } else {
+                                    H1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("H2") == 0) {
+                                if (ok == 1) {
+                                    H2.setBackground(Color.red);
+                                } else {
+                                    H2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("H3") == 0) {
+                                if (ok == 1) {
+                                    H3.setBackground(Color.red);
+                                } else {
+                                    H3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("H4") == 0) {
+                                if (ok == 1) {
+                                    H4.setBackground(Color.red);
+                                } else {
+                                    H4.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("I1") == 0) {
+                                if (ok == 1) {
+                                    I1.setBackground(Color.red);
+                                } else {
+                                    I1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("I2") == 0) {
+                                if (ok == 1) {
+                                    I2.setBackground(Color.red);
+                                } else {
+                                    I2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("I3") == 0) {
+                                if (ok == 1) {
+                                    I3.setBackground(Color.red);
+                                } else {
+                                    I3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("I4") == 0) {
+                                if (ok == 1) {
+                                    I4.setBackground(Color.red);
+                                } else {
+                                    I4.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("J1") == 0) {
+                                if (ok == 1) {
+                                    J1.setBackground(Color.red);
+                                } else {
+                                    J1.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("J2") == 0) {
+                                if (ok == 1) {
+                                    J2.setBackground(Color.red);
+                                } else {
+                                    J2.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("J3") == 0) {
+                                if (ok == 1) {
+                                    J3.setBackground(Color.red);
+                                } else {
+                                    J3.setBackground(Color.green);
+                                }
+                            } else if (sname.compareTo("J4") == 0) {
+                                if (ok == 1) {
+                                    J4.setBackground(Color.red);
+                                } else {
+                                    J4.setBackground(Color.green);
+                                }
+                            }
+
+                        }
+                    } else {
+                        bus_name.removeAllItems();
+                        bus_name.addItem("Select");
+                        bus_name.setSelectedIndex(0);
+                        Set_Seats_To_Green();
+                    }
+
+                } else {
+                    bus_name.removeAllItems();
+                    bus_name.addItem("Select");
+                    bus_name.setSelectedIndex(0);
+                    Set_Seats_To_Green();
+                }
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(rootPane, ex, "Set Seat Colors", 0);
+            }
         }
     }
 
@@ -559,7 +636,7 @@ public final class TicketBooking extends javax.swing.JFrame {
         pname = name_field.getText();
         pcontact = contact_field.getText();
         Price = total_price.getText();
-        busname = (String) bus_name.getSelectedItem();
+        BUS_NAME = (String) bus_name.getSelectedItem();
 
         if (is_valid_contact(pcontact)) {
             JOptionPane.showMessageDialog(rootPane, "Enter a valid number", "Error", 2);
@@ -569,16 +646,16 @@ public final class TicketBooking extends javax.swing.JFrame {
             atime = ar.get(ind - 1).ARRIVAL_TIME;
             dispose();
 
-            Payment p_ob = new Payment(pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat, Nseat, Price, busname, USERID, atime);
+            Payment p_ob = new Payment(pname, pcontact, SelectedFrom, SelectedTo, SelectedDate, selectedTime, selectedSeat, Nseat, Price, BUS_NAME, USERID, atime);
             p_ob.setVisible(true);
         }
     }
 
     public boolean Check_Fields() {
         boolean ok = false;
-        if (flevel.getText().isEmpty()) {
+        if (source_label.getText().isEmpty()) {
             JOptionPane.showMessageDialog(rootPane, "Select your starting place");
-        } else if (tlevel.getText().isEmpty()) {
+        } else if (destination_label.getText().isEmpty()) {
             JOptionPane.showMessageDialog(rootPane, "Select your destination place");
         } else if (ticket_price.getText().isEmpty()) {
             JOptionPane.showMessageDialog(rootPane, "Select your journey Bus Plz!!");
@@ -658,16 +735,15 @@ public final class TicketBooking extends javax.swing.JFrame {
         SeatB = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        flevel = new javax.swing.JLabel();
+        source_label = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        tlevel = new javax.swing.JLabel();
+        destination_label = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         total_price = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
-        jLabel20 = new javax.swing.JLabel();
         nseat_field = new javax.swing.JTextField();
         dateee = new javax.swing.JTextField();
         Reset = new javax.swing.JButton();
@@ -691,6 +767,16 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         source.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         source.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Noakhali", "Dhaka", "Chittagong", "CoxBazar", "Cumilla", "Feni", " " }));
+        source.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                sourceItemStateChanged(evt);
+            }
+        });
+        source.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                sourceMouseClicked(evt);
+            }
+        });
         source.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 sourceActionPerformed(evt);
@@ -700,6 +786,16 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         destination.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         destination.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Dhaka", "Cumilla", "Chittagong", "Feni", "CoxBazar", "Noakhali" }));
+        destination.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                destinationItemStateChanged(evt);
+            }
+        });
+        destination.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                destinationMouseClicked(evt);
+            }
+        });
         destination.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 destinationActionPerformed(evt);
@@ -730,13 +826,13 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel6.setText("NAME :");
-        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 36, 50, 20));
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 30, 50, 20));
 
         name_field.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
-        getContentPane().add(name_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 32, 160, 30));
+        getContentPane().add(name_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 30, 160, 30));
 
         contact_field.setFont(new java.awt.Font("SansSerif", 0, 15)); // NOI18N
-        getContentPane().add(contact_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 30, 140, 30));
+        getContentPane().add(contact_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 30, 140, 30));
 
         A1.setBackground(new java.awt.Color(0, 255, 0));
         A1.setFont(new java.awt.Font("Segoe UI Symbol", 0, 12)); // NOI18N
@@ -1138,21 +1234,21 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel7.setText("CONTACT :");
-        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 30, 70, 20));
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 30, 70, 20));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel8.setText("FROM :");
-        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 70, 50, 20));
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 70, 50, 20));
 
-        flevel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        getContentPane().add(flevel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 70, 120, 20));
+        source_label.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        getContentPane().add(source_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 70, 120, 20));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("TO :");
-        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(492, 66, 30, 20));
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 70, 30, 20));
 
-        tlevel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
-        getContentPane().add(tlevel, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 70, 130, 20));
+        destination_label.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
+        getContentPane().add(destination_label, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 70, 130, 20));
 
         jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel12.setText("BUSNAME :");
@@ -1163,23 +1259,22 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         jLabel15.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel15.setText("DATE :");
-        getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(486, 96, 40, 20));
+        getContentPane().add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 100, 40, 20));
 
         total_price.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
         getContentPane().add(total_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 160, 120, 20));
 
         jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel17.setText("NO OF SEAT :");
-        getContentPane().add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(233, 130, 80, 20));
+        jLabel17.setText("NO OF SEATS:");
+        getContentPane().add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 130, 80, 20));
 
         jLabel19.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel19.setText("TOTAL PRICE :");
-        getContentPane().add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(448, 160, 90, 20));
-        getContentPane().add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 140, 60, 20));
+        getContentPane().add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 160, 90, 20));
 
         nseat_field.setEditable(false);
         nseat_field.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
-        getContentPane().add(nseat_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 130, 70, 30));
+        getContentPane().add(nseat_field, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 130, 160, 30));
 
         dateee.setEditable(false);
         dateee.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
@@ -1188,7 +1283,7 @@ public final class TicketBooking extends javax.swing.JFrame {
                 dateeeActionPerformed(evt);
             }
         });
-        getContentPane().add(dateee, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 98, 140, 30));
+        getContentPane().add(dateee, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 100, 140, 30));
 
         Reset.setBackground(new java.awt.Color(0, 0, 0));
         Reset.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -1203,10 +1298,10 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel9.setText("PRICE :");
-        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 160, 40, 20));
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 170, 40, 20));
 
         ticket_price.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
-        getContentPane().add(ticket_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 80, 20));
+        getContentPane().add(ticket_price, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 170, 80, 20));
 
         Book.setBackground(new java.awt.Color(0, 0, 0));
         Book.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
@@ -1285,9 +1380,15 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         bus_name.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N
         bus_name.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select" }));
+        bus_name.setToolTipText("");
         bus_name.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 bus_nameItemStateChanged(evt);
+            }
+        });
+        bus_name.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bus_nameMouseClicked(evt);
             }
         });
         bus_name.addActionListener(new java.awt.event.ActionListener() {
@@ -1295,7 +1396,7 @@ public final class TicketBooking extends javax.swing.JFrame {
                 bus_nameActionPerformed(evt);
             }
         });
-        getContentPane().add(bus_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 100, 130, -1));
+        getContentPane().add(bus_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 90, 160, -1));
 
         jLabel16.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         getContentPane().add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, 480, 230));
@@ -1317,23 +1418,30 @@ public final class TicketBooking extends javax.swing.JFrame {
 
     private void sourceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sourceActionPerformed
         // TODO add your handling code here:
+        
+        Search2();
+        Set_Seat_Colors();
         SelectedFrom = source.getSelectedItem().toString();
-        if (SelectedFrom == "Select") {
-            //JOptionPane.showMessageDialog(rootPane, "Invalid !!!");
-            flevel.setText("");
+
+//        System.out.println(SelectedFrom);
+        if (SelectedFrom.compareTo("Select") == 0) {
+            source_label.setText("");
         } else
-            flevel.setText(SelectedFrom);
+            source_label.setText(SelectedFrom);
     }//GEN-LAST:event_sourceActionPerformed
 
     private void destinationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_destinationActionPerformed
         // TODO add your handling code here:
+        
+        Search2();
+        Set_Seat_Colors();
         SelectedTo = destination.getSelectedItem().toString();
-        if (SelectedFrom == SelectedTo || SelectedTo == "Select") {
-            //JOptionPane.showMessageDialog(rootPane, "Invalid !!!");
-            destination.setSelectedIndex(0);
-            tlevel.setText("");
+//        System.out.println(SelectedTo);
+
+        if (SelectedTo.compareTo("Select") == 0) {
+            destination_label.setText("");
         } else
-            tlevel.setText(SelectedTo);
+            destination_label.setText(SelectedTo);
     }//GEN-LAST:event_destinationActionPerformed
 
     private void A1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_A1ActionPerformed
@@ -2274,7 +2382,7 @@ public final class TicketBooking extends javax.swing.JFrame {
             } else {
 //            String selectd = (String) jComboBox2.getSelectedItem();
                 int ind = bus_name.getSelectedIndex();
-                busname = bus_name.getSelectedItem().toString();
+                BUS_NAME = bus_name.getSelectedItem().toString();
 
                 String table_name = SelectedFrom + "_" + SelectedTo;
                 String query = "";
@@ -2283,203 +2391,203 @@ public final class TicketBooking extends javax.swing.JFrame {
                 ok = true;
                 if (A1.getBackground() == yellow) {
                     A1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET A1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET A1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                     System.out.println(query);
                 }
                 if (A2.getBackground() == yellow) {
                     A2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET A2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET A2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (A3.getBackground() == yellow) {
                     A3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET A3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET A3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (A4.getBackground() == yellow) {
                     A4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET A4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET A4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (B1.getBackground() == yellow) {
                     B1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET B1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET B1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (B2.getBackground() == yellow) {
                     B2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET B2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET B2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (B3.getBackground() == yellow) {
                     B3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET B3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET B3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (B4.getBackground() == yellow) {
                     B4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET B4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET B4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (C1.getBackground() == yellow) {
                     C1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET C1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET C1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (C2.getBackground() == yellow) {
                     C2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET C2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET C2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (C3.getBackground() == yellow) {
                     C3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET C3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET C3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (C4.getBackground() == yellow) {
                     C4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET C4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET C4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (D1.getBackground() == yellow) {
                     D1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET D1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET D1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (D2.getBackground() == yellow) {
                     D2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET D2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET D2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (D3.getBackground() == yellow) {
                     D3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET D3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET D3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (D4.getBackground() == yellow) {
                     D4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET D4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET D4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (E1.getBackground() == yellow) {
                     E1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET E1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET E1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (E2.getBackground() == yellow) {
                     E2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET E2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET E2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (E3.getBackground() == yellow) {
                     E3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET E3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET E3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (E4.getBackground() == yellow) {
                     E4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET E4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET E4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (F1.getBackground() == yellow) {
                     F1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET F1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET F1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (F2.getBackground() == yellow) {
                     F2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET F2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET F2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (F3.getBackground() == yellow) {
                     F3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET F3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET F3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (F4.getBackground() == yellow) {
                     F4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET F4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET F4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (G1.getBackground() == yellow) {
                     G1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET G1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET G1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (G2.getBackground() == yellow) {
                     G2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET G2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET G2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (G3.getBackground() == yellow) {
                     G3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET G3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET G3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (G4.getBackground() == yellow) {
                     G4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET G4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET G4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (H1.getBackground() == yellow) {
                     H1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET H1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET H1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (H2.getBackground() == yellow) {
                     H2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET H2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET H2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (H3.getBackground() == yellow) {
                     H3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET H3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET H3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (H4.getBackground() == yellow) {
                     H4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET H4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET H4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (I1.getBackground() == yellow) {
                     I1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET I1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET I1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (I2.getBackground() == yellow) {
                     I2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET I2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET I2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (I3.getBackground() == yellow) {
                     I3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET I3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET I3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (I4.getBackground() == yellow) {
                     I4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET I4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET I4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (J1.getBackground() == yellow) {
                     J1.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET J1 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET J1 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (J2.getBackground() == yellow) {
                     J2.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET J2 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET J2 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (J3.getBackground() == yellow) {
                     J3.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET J3 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET J3 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
                 if (J4.getBackground() == yellow) {
                     J4.setBackground(Color.red);
-                    query = "UPDATE " + table_name + " SET J4 = '1' WHERE bus_name = '" + busname + "';";
+                    query = "UPDATE " + table_name + " SET J4 = '1' WHERE bus_name = '" + BUS_NAME + "';";
                     stmt.executeUpdate(query);
                 }
             }
@@ -2496,8 +2604,8 @@ public final class TicketBooking extends javax.swing.JFrame {
         Nseat = 0;
         source.setSelectedIndex(0);
         destination.setSelectedIndex(0);
-        flevel.setText("");
-        tlevel.setText("");
+        source_label.setText("");
+        destination_label.setText("");
         dateee.setText("");
         name_field.setText("");
         contact_field.setText("");
@@ -2505,10 +2613,10 @@ public final class TicketBooking extends javax.swing.JFrame {
         ticket_price.setText("");
         total_price.setText("");
         selectedSeat = " ";
-        //Clearing Table
-        //DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
-        //dm.getDataVector().removeAllElements();
-        //dm.fireTableDataChanged();
+//        Clearing Table
+        DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
+        dm.getDataVector().removeAllElements();
+        dm.fireTableDataChanged();
 
         //Clearing Date
         try {
@@ -2656,18 +2764,12 @@ public final class TicketBooking extends javax.swing.JFrame {
     private void SearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchActionPerformed
         // TODO add your handling code here:
         if (!ok) {
-            String from = (String) source.getSelectedItem();
-            String to = (String) destination.getSelectedItem();
+            SelectedFrom = ((String) source.getSelectedItem()).toLowerCase();
+            SelectedTo = ((String) destination.getSelectedItem()).toLowerCase();
 
-            if (from == "Select") {
-                JOptionPane.showMessageDialog(null, "Invalid 'from' location!", "Error", 2);
-            } else if (to == "Select") {
-                JOptionPane.showMessageDialog(null, "Invalid 'to' location!", "Error", 2);
-            } else if (from == to) {
-                JOptionPane.showMessageDialog(null, "Please select valid locations!", "Error", 2);
-            } else {
-                try {
-                    String query = "SELECT * FROM " + from + "_" + to + ";";
+            try {
+                if (Route_Exists(SelectedFrom, SelectedTo) == true) {
+                    String query = "SELECT * FROM " + SelectedFrom + "_" + SelectedTo + ";";
                     Class.forName("com.mysql.cj.jdbc.Driver");
                     Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
                     Statement st = (Statement) con.createStatement();
@@ -2679,13 +2781,24 @@ public final class TicketBooking extends javax.swing.JFrame {
                         ar.add(obj);
                     }
                     showTable();
-                    st.close();
-                    con.close();
+                } else {
+                    ar.clear();
 
-                } catch (ClassNotFoundException | SQLException ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Error", 0);
+                    JOptionPane.showMessageDialog(null, "Invalid route!", "Error", 2);
+
+                    DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
+                    dm.getDataVector().removeAllElements();
+                    dm.fireTableDataChanged();
+
+                    bus_name.removeAllItems();
+                    bus_name.addItem("Select");
+                    bus_name.setSelectedIndex(0);
                 }
+
+            } catch (ClassNotFoundException | SQLException ex) {
+                JOptionPane.showMessageDialog(null, ex, "Error", 0);
             }
+
         }
     }//GEN-LAST:event_SearchActionPerformed
 
@@ -2693,14 +2806,11 @@ public final class TicketBooking extends javax.swing.JFrame {
         // TODO add your handling code here:
 
         int ind = bus_name.getSelectedIndex();
-        String selectd = (String) bus_name.getSelectedItem();
-        
-        if (Check_Fields() == false) {
-            Set_Seats_To_Green();
-        } else {
-            Set_Seat_Colors();
-        }
+        BUS_NAME = (String) bus_name.getSelectedItem();
 
+        Set_Seat_Colors();
+
+//        System.out.println(BUS_NAME);
         if (ind > 0) {
             ticket_price.setText(String.valueOf(ar.get(ind - 1).FARE));
         }
@@ -2725,6 +2835,31 @@ public final class TicketBooking extends javax.swing.JFrame {
         Set_Seat_Colors();
 
     }//GEN-LAST:event_bus_nameItemStateChanged
+
+    private void sourceItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_sourceItemStateChanged
+        // TODO add your handling code here:
+//        Set_Seat_Colors();
+    }//GEN-LAST:event_sourceItemStateChanged
+
+    private void destinationItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_destinationItemStateChanged
+        // TODO add your handling code here:
+//        Set_Seat_Colors();
+    }//GEN-LAST:event_destinationItemStateChanged
+
+    private void bus_nameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bus_nameMouseClicked
+        // TODO add your handling code here:
+//        Set_Seat_Colors();
+    }//GEN-LAST:event_bus_nameMouseClicked
+
+    private void sourceMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sourceMouseClicked
+        // TODO add your handling code here:
+//        Set_Seat_Colors();
+    }//GEN-LAST:event_sourceMouseClicked
+
+    private void destinationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_destinationMouseClicked
+        // TODO add your handling code here:
+//        Set_Seat_Colors();
+    }//GEN-LAST:event_destinationMouseClicked
 
     /**
      * @param args the command line arguments
@@ -2810,7 +2945,7 @@ public final class TicketBooking extends javax.swing.JFrame {
     private javax.swing.JTextField contact_field;
     private javax.swing.JTextField dateee;
     private javax.swing.JComboBox<String> destination;
-    private javax.swing.JLabel flevel;
+    private javax.swing.JLabel destination_label;
     private javax.swing.JButton jButton41;
     private javax.swing.JButton jButton42;
     private javax.swing.JButton jButton45;
@@ -2827,7 +2962,6 @@ public final class TicketBooking extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -2841,8 +2975,8 @@ public final class TicketBooking extends javax.swing.JFrame {
     private javax.swing.JTextField nseat_field;
     private javax.swing.JButton paysubmit_button;
     private javax.swing.JComboBox<String> source;
+    private javax.swing.JLabel source_label;
     private javax.swing.JLabel ticket_price;
-    private javax.swing.JLabel tlevel;
     private javax.swing.JLabel total_price;
     // End of variables declaration//GEN-END:variables
 }

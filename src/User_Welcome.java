@@ -105,7 +105,7 @@ public class User_Welcome extends javax.swing.JFrame {
        User_Login log= new User_Login();
        try{
            for(int i=0;i<100; i++){
-               Thread.sleep(60);
+               Thread.sleep(1);
                wel.loadingvalue.setText(i +"%");
                if(i==10){
                    wel.loadinglevel.setText("Turning On Modules...");
