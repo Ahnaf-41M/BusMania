@@ -19,7 +19,7 @@ public final class Mybooking extends javax.swing.JFrame {
     String username = "root";
     String pass = "123456";
     String USERID;
-    
+
     public Mybooking() {
         setResizable(false);
         initComponents();
@@ -27,17 +27,20 @@ public final class Mybooking extends javax.swing.JFrame {
         Set_Table_Prop();
         SearchBooking();
     }
+
     public Mybooking(String userid) {
         setResizable(false);
         initComponents();
-        USERID=userid;
+        USERID = userid;
         Set_Frame();
         Set_Table_Prop();
         SearchBooking();
     }
+
     public void Set_Frame() {
         getContentPane().setBackground(Color.black);
     }
+
     public void Set_Table_Prop() {
         JTableHeader tableHeader = jTable1.getTableHeader();
         tableHeader.setForeground(Color.black);
@@ -49,16 +52,17 @@ public final class Mybooking extends javax.swing.JFrame {
         headerLabel.setHorizontalAlignment(JLabel.CENTER);
         jTable1.setRowHeight(35);
         jTable1.getColumnModel().getColumn(1).setPreferredWidth(100);
-       // jTable1.getColumnModel().getColumn(0).setPreferredWidth(120);
+        // jTable1.getColumnModel().getColumn(0).setPreferredWidth(120);
 
     }
+
     class my_booking {
 
-        public String bus, seatBooked, date , arrival,departure,from,destination;
+        public String bus, seatBooked, date, arrival, departure, from, destination;
 
-        public my_booking(String bus, String seatBooked, String date,String from,String destination,String departure, String arrival) {
+        public my_booking(String bus, String seatBooked, String date, String from, String destination, String departure, String arrival) {
             this.bus = bus;
-            this.seatBooked=seatBooked;
+            this.seatBooked = seatBooked;
             this.date = date;
             this.from = from;
             this.destination = destination;
@@ -67,6 +71,7 @@ public final class Mybooking extends javax.swing.JFrame {
         }
     }
     ArrayList<my_booking> ar = new ArrayList<>();
+
     public void showTable() {
         DefaultTableModel mod = (DefaultTableModel) (jTable1.getModel());
         Object[] col = new Object[8];
@@ -83,9 +88,10 @@ public final class Mybooking extends javax.swing.JFrame {
             mod.addRow(col);
         }
     }
+
     public void SearchBooking() {
         try {
-            String query = "SELECT bus,seatBooked,journeyDate, startPlace,destination,departure,arrival FROM My_Booking WHERE user='"+USERID+"';";
+            String query = "SELECT bus,seatBooked,journeyDate, startPlace,destination,departure,arrival FROM My_Booking WHERE user='" + USERID + "';";
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = (Connection) DriverManager.getConnection(url, username, pass); //2
             Statement st = (Statement) con.createStatement();
@@ -93,7 +99,7 @@ public final class Mybooking extends javax.swing.JFrame {
 
             ar.clear();
             while (rs.next()) {
-                my_booking obj = new my_booking(rs.getString("bus"),rs.getString("seatBooked"), rs.getString("journeyDate"), rs.getString("startPlace"),rs.getString("destination"),rs.getString("departure"),rs.getString("arrival"));
+                my_booking obj = new my_booking(rs.getString("bus"), rs.getString("seatBooked"), rs.getString("journeyDate"), rs.getString("startPlace"), rs.getString("destination"), rs.getString("departure"), rs.getString("arrival"));
                 ar.add(obj);
             }
             showTable();
@@ -104,6 +110,7 @@ public final class Mybooking extends javax.swing.JFrame {
             Logger.getLogger(TicketBooking.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -118,6 +125,7 @@ public final class Mybooking extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("My Booking");
 
         jTable1.setBackground(new java.awt.Color(0, 204, 204));
         jTable1.setFont(new java.awt.Font("SansSerif", 0, 14)); // NOI18N

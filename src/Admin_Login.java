@@ -97,7 +97,7 @@ public final class Admin_Login extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Login");
+        setTitle("Admin Login");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         admin_id.setFont(new java.awt.Font("Calibri", 0, 16)); // NOI18N

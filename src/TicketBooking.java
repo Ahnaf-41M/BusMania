@@ -140,7 +140,8 @@ public final class TicketBooking extends javax.swing.JFrame {
     public void setNseat() {
         if (BUS_NAME.compareTo("Select") != 0 && BUS_NAME.isEmpty() == false) {
             try {
-                String query = "SELECT * FROM my_booking WHERE user = '" + USERID + "' AND bus = '" + BUS_NAME + "';";
+                String query = "SELECT * FROM my_booking WHERE user = '" + USERID + "' AND bus = '"
+                        + BUS_NAME + "' AND journeyDate = '" + tommorrow + "';";
                 ResultSet rset = stmt.executeQuery(query);
                 if (rset.next()) {
                     Nseat = Integer.valueOf(rset.getString("seatBooked"));
@@ -1272,7 +1273,7 @@ public final class TicketBooking extends javax.swing.JFrame {
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel8.setText("FROM :");
-        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 30, 50, 20));
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 30, 50, 20));
 
         fromLabel.setFont(new java.awt.Font("SansSerif", 1, 15)); // NOI18N
         getContentPane().add(fromLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 30, 110, 20));
@@ -1317,7 +1318,7 @@ public final class TicketBooking extends javax.swing.JFrame {
                 dateLabelActionPerformed(evt);
             }
         });
-        getContentPane().add(dateLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 90, 100, 30));
+        getContentPane().add(dateLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 90, 130, 30));
 
         Reset.setBackground(new java.awt.Color(0, 0, 0));
         Reset.setFont(new java.awt.Font("Segoe UI Black", 1, 12)); // NOI18N
