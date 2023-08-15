@@ -5,11 +5,12 @@ public class User_Welcome extends javax.swing.JFrame {
         setResizable(false);
         setTitle("Welcome Page");
         initComponents();
-       // ScaleImage();
-       jButton1.setOpaque(false);
-       jButton1.setContentAreaFilled(false);
-       jButton1.setBorderPainted(false);
+        // ScaleImage();
+        jButton1.setOpaque(false);
+        jButton1.setContentAreaFilled(false);
+        jButton1.setBorderPainted(false);
     }
+
     /*public void ScaleImage(){
         ImageIcon icon;
         icon = new ImageIcon("E:\\JavaProject\\BusMania\\src\\img\\welcome.jpg");
@@ -100,35 +101,35 @@ public class User_Welcome extends javax.swing.JFrame {
 
         /* Create and display the form */
         User_Welcome wel = new User_Welcome();
-       wel.setVisible(true);
-       
-       User_Login log= new User_Login();
-       try{
-           for(int i=0;i<100; i++){
-               Thread.sleep(1);
-               wel.loadingvalue.setText(i +"%");
-               if(i==10){
-                   wel.loadinglevel.setText("Turning On Modules...");
-               }
-               if(i==20){
-                   wel.loadinglevel.setText("Loading Modules...");
-               }
-               if(i==50){
-                   wel.loadinglevel.setText("Connecting to Database...");
-               }
-               if(i==70){
-                   wel.loadinglevel.setText("Connection Successful!");
-               }
-               if(i==80){
-                   wel.loadinglevel.setText("Launching Application...");
-               }
-               wel.LoadingBar.setValue(i);
-           }
-       }catch(InterruptedException e){
-       }
-       wel.setVisible(false);
-       log.setVisible(true);
-       wel.dispose();
+        wel.setVisible(true);
+
+        User_Login log = new User_Login();
+        try {
+            for (int i = 0; i < 100; i++) {
+                Thread.sleep(1);
+                wel.loadingvalue.setText(i + "%");
+                if (i == 10) {
+                    wel.loadinglevel.setText("Turning On Modules...");
+                }
+                if (i == 20) {
+                    wel.loadinglevel.setText("Loading Modules...");
+                }
+                if (i == 50) {
+                    wel.loadinglevel.setText("Connecting to Database...");
+                }
+                if (i == 70) {
+                    wel.loadinglevel.setText("Connection Successful!");
+                }
+                if (i == 80) {
+                    wel.loadinglevel.setText("Launching Application...");
+                }
+                wel.LoadingBar.setValue(i);
+            }
+        } catch (InterruptedException e) {
+        }
+        wel.setVisible(false);
+        log.setVisible(true);
+        wel.dispose();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
