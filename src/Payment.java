@@ -189,7 +189,7 @@ public final class Payment extends javax.swing.JFrame {
                 if (userExists(USERID, busname) == true) {
                     Nseat += prevSeats;
                     ss = String.valueOf(Nseat);
-                    query = "UPDATE my_booking SET seatBooked = '"+ss+"' FWHERE user = '"+USERID+"';";
+                    query = "UPDATE my_booking SET seatBooked = '" + ss + "' WHERE user = '" + USERID + "';";
                 } else {
                     query = "INSERT INTO my_booking VALUES('" + busname + "','" + ss + "','" + date + "','" + from + "','"
                             + to + "','" + dtime + "','" + atime + "','" + USERID + "');";
